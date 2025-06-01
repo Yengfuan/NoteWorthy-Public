@@ -2,6 +2,8 @@ from music21 import *
 import numpy as np
 from flask import Flask, request, jsonify
 
+app = Flask(__name__)
+
 converterTable = {"rest" : 0,
                   0 : "1",
                   1 : "#1",
@@ -43,39 +45,50 @@ def getRelativeOctave(nPitch, base_note):
     return (nPitch.midi - base_note.pitch.midi) // 12
 
 
-#insert the @app thingy here
+@app.route('/upload', methods=['POST'])
 def transposeToJianpu():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
     
     file = request.files['file']
-
+   
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
+
+    if 'key' not in request.form:
+        return jsonify({"error": "No key provided"}), 400
+    
+    key = request.form['key']
+
+
+    
+    try:
+        base_note = note.Note(key)
+    except:
+        return jsonify({"error": "Invalid key"}), 400
     
 
-    score = converter.parse(file)
-    melody = score.parts[0].getElementsByClass(stream.Measure)
+    try:
+        score = converter.parse(file)
+        melody = score.parts[0].getElementsByClass(stream.Measure)
+        output = []
+
+        for measure in melody:
+            measure_output = []
+            for n in measure.getElementsByClass(['Note', 'Chord', 'Rest']):
+                measure_output.append(pitchConvert(n, base_note))
+            output.append(measure_output)
+
+        return jsonify({"jianpu": output}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
-    correctInsert = False
-    while not correctInsert: #getting the base key
-        try:
-            key = input("insert key: ")
-            base_note = note.Note(key)
-            correctInsert = True
-        except:
-            print("Not a valid key")
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001, debug=True)
 
 
-    for index,i in enumerate(melody):
-        print('---------' + str(index))
-        for n in i.getElementsByClass(['Note', 'Chord', 'Rest']):
-            print(pitchConvert(n, base_note))
 
-            
-
-file = input('Insert File Name')
-transposeToJianpu(file)
 
 
     
