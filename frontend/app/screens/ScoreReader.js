@@ -9,7 +9,7 @@ const ScoreReader = ({ navigation }) => {
 
     const pickFile = async () => {
         const res = await DocumentPicker.getDocumentAsync({
-          type: "application/xml",
+          type: "*/*",
           copyToCacheDirectory: true,
         });
         
