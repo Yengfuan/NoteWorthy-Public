@@ -1,6 +1,6 @@
 import {View, Text, TextInput, Button, StyleSheet, ScrollView, Alert} from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-import { React, useState } from 'react';
+import React, { useState } from 'react';
 
 const ScoreReader = ({ navigation }) => {
     const [key, setKey] = useState('');
@@ -9,13 +9,16 @@ const ScoreReader = ({ navigation }) => {
 
     const pickFile = async () => {
         const res = await DocumentPicker.getDocumentAsync({
-          type: "*/*",
+          type: "application/xml",
           copyToCacheDirectory: true,
+          multiple: false,
         });
+
+        if (res.type !== 'cancel') {
+          setFile(res);
+        }
+
         
-        if (res.type === 'success') {
-            setFile(res);
-          }
     };
 
     const uploadFile = async () => {
@@ -26,22 +29,24 @@ const ScoreReader = ({ navigation }) => {
 
         const formData = new FormData();
         formData.append('file', {
-            uri: file.uri,
-            name: file.name,
-            type: 'application/octet-stream',
+            uri: file.assets[0].uri,
+            name: file.assets[0].name,
+            type: '*/*',
         });
         formData.append('key', key);
 
         try {
-            const response = await fetch('http://INSERT_YOUR_OWN_IP/upload', {
+            const response = await fetch('http://192.168.182.53:5001/upload', {
               method: 'POST',
               headers: {
                 'Content-Type': 'multipart/form-data',
               },
               body: formData,
             });
-      
+
+            console.log('Response status:', response.status);
             const json = await response.json();
+            console.log('Response JSON:', json);
       
             if (response.ok) {
               const jianpuText = json.jianpu.map(measure => measure.join(' ')).join('\n');
@@ -60,7 +65,7 @@ const ScoreReader = ({ navigation }) => {
         <View style={styles.container}>
             <Text style={styles.title}>Score Reader</Text>
             <Button title="Pick Music File" onPress={pickFile} />
-            <Text style={styles.text}>Selected File: {file ? file.name : 'None'}</Text>
+            <Text style={styles.text}>Selected File: {file ? file.assets[0].name : 'None'}</Text>
     
             <TextInput
             placeholder="Enter base key (e.g., C4)"
@@ -73,7 +78,7 @@ const ScoreReader = ({ navigation }) => {
     
             <Text style={styles.outputLabel}>Jianpu Output:</Text>
             <ScrollView style={styles.scroll}>
-            <Text>{result}</Text>
+              <Text>{result}</Text>
             </ScrollView>
 
             <Button title = "Home" onPress ={() => navigation.navigate('Home')} />

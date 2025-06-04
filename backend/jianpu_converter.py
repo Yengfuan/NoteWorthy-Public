@@ -1,6 +1,7 @@
 from music21 import *
 import numpy as np
 from flask import Flask, request, jsonify
+import io 
 
 app = Flask(__name__)
 
@@ -69,7 +70,11 @@ def transposeToJianpu():
     
 
     try:
-        score = converter.parse(file)
+        file_content = file.read()
+        score = converter.parse(file_content, format='musicxml', forceSource=True)
+        
+        if not score.parts:
+            return jsonify({"error": "No melody part found"}), 400
         melody = score.parts[0].getElementsByClass(stream.Measure)
         output = []
 
