@@ -1,24 +1,13 @@
 from music21 import *
-from flask import Flask, request, jsonify, send_file
+import numpy as np
+from flask import Flask, request, jsonify
 import io 
-import os
-import uuid #from audiveris app
-import subprocess #from audiveris app
 
 app = Flask(__name__)
-
-AUDIVERIS_PATH = 'audiveris.jar'  # Path to your Audiveris JAR file
-OUTPUT_DIR = 'output_musicxml'  # Directory to store output files
-UPLOAD_DIR = 'uploads'  # Directory to store uploaded files
-
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 converterTable = {"rest" : 0,
                   0 : "1",
                   1 : "#1",
-
-
                   2 : "2",
                   3 : "#2",
                   4 : "3",
@@ -79,38 +68,13 @@ def transposeToJianpu():
     except:
         return jsonify({"error": "Invalid key"}), 400
     
-    filename = str(uuid.uuid4())
-    input_ext = os.path.splitext(file.filename)[1].lower()
 
     try:
-
-        # ====Uploaded file is PDF====
-        if input_ext == ".pdf":
-            pdf_path = os.path.join(UPLOAD_DIR, filename + ".pdf")
-            file.save(pdf_path)
-
-            # Run Audiveris command
-            cmd = ['java', '-jar', AUDIVERIS_PATH, '-batch', '-output', OUTPUT_DIR, pdf_path]
-            subprocess.run(cmd, check=True)
-
-            
-            xml_path = os.path.join(OUTPUT_DIR, filename + ".xml")
-            if not os.path.exists(xml_path):
-                return jsonify({"error": "MusicXML file not found"}), 500
-            
-            score = converter.parse(xml_path)
+        file_content = file.read()
+        score = converter.parse(file_content, format='musicxml', forceSource=True)
         
-        # ====Uploaded file is MusicXML====
-        elif input_ext in ['.xml', '.musicxml']:
-            file_content = file.read()
-            score = converter.parse(file_content, format='musicxml', forceSource=True)
-
-        else:
-            return jsonify({"error": "Unsupported file format"}), 400
-            
         if not score.parts:
             return jsonify({"error": "No melody part found"}), 400
-        
         melody = score.parts[0].getElementsByClass(stream.Measure)
         output = []
 
@@ -122,9 +86,6 @@ def transposeToJianpu():
 
         return jsonify({"jianpu": output}), 200
 
-    except subprocess.CalledProcessError as e:
-        return jsonify({"error": f"Audiveris conversion failed: {str(e)}"}), 500
-    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     

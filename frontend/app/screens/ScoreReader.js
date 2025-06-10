@@ -9,7 +9,7 @@ const ScoreReader = ({ navigation }) => {
 
     const pickFile = async () => {
         const res = await DocumentPicker.getDocumentAsync({
-          type: ["application/xml", "application/pdf"],
+          type: "application/xml",
           copyToCacheDirectory: true,
           multiple: false,
         });
@@ -36,7 +36,7 @@ const ScoreReader = ({ navigation }) => {
         formData.append('key', key);
 
         try {
-            const response = await fetch('IP_ADDRESS/upload', {
+            const response = await fetch('http://INSERT_OWN_IP/upload', {
               method: 'POST',
               headers: {
                 'Content-Type': 'multipart/form-data',
@@ -45,23 +45,8 @@ const ScoreReader = ({ navigation }) => {
             });
 
             console.log('Response status:', response.status);
-            const text = await response.text();
-            console.log('Raw response:', text);
-
-            try {
-              const json = JSON.parse(text);
-              console.log('Parsed JSON:', json);
-
-              if (response.ok) {
-                const jianpuText = json.jianpu.map(measure => measure.join(' ')).join('\n');
-                setResult(jianpuText);
-              } else {
-                setResult(`Error: ${json.error}`);
-              }
-            } catch (err) {
-              console.error('JSON parse error:', err.message);
-              setResult(`Unexpected server response:\n${text}`);
-            }
+            const json = await response.json();
+            console.log('Response JSON:', json);
       
             if (response.ok) {
               const jianpuText = json.jianpu.map(measure => measure.join(' ')).join('\n');
