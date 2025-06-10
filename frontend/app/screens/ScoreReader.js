@@ -36,7 +36,7 @@ const ScoreReader = ({ navigation }) => {
         formData.append('key', key);
 
         try {
-            const response = await fetch('http://INSERT_OWN_IP/upload', {
+            const response = await fetch('http://IP-ADRESS/upload', {
               method: 'POST',
               headers: {
                 'Content-Type': 'multipart/form-data',
@@ -49,6 +49,8 @@ const ScoreReader = ({ navigation }) => {
             console.log('Response JSON:', json);
       
             if (response.ok) {
+              //navigation.navigate('JianpuPage', { output: json.jianpu });
+              console.log('Jianpu data:', json.jianpu);
               const jianpuText = json.jianpu.map(measure => measure.join(' ')).join('\n');
               setResult(jianpuText);
             } else {
@@ -59,10 +61,13 @@ const ScoreReader = ({ navigation }) => {
           }
         };
 
+
+
+       
     
     
     return (
-        <View style={styles.container}>
+        <View style={styles.container} >
             <Text style={styles.title}>Score Reader</Text>
             <Button title="Pick Music File" onPress={pickFile} />
             <Text style={styles.text}>Selected File: {file ? file.assets[0].name : 'None'}</Text>
@@ -77,8 +82,8 @@ const ScoreReader = ({ navigation }) => {
             <Button title="Convert to Jianpu" onPress={uploadFile} />
     
             <Text style={styles.outputLabel}>Jianpu Output:</Text>
-            <ScrollView style={styles.scroll}>
-              <Text>{result}</Text>
+            <ScrollView style={styles.scroll} horizontal = {false}>
+              { <Text>{result}</Text> }
             </ScrollView>
 
             <Button title = "Home" onPress ={() => navigation.navigate('Home')} />
@@ -112,6 +117,8 @@ const styles = StyleSheet.create({
   scroll: {
     marginTop: 10,
     maxHeight: 300,
+    flexDirection : 'row',
   },
+  
 });
 

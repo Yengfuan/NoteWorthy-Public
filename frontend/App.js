@@ -1,7 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from './app/screens/Login';
-import { ScoreReader, PitchChecker, Home } from './app/screens';
+import { ScoreReader, PitchChecker, Home, JianpuPage } from './app/screens';
 import { use, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './firebase-config';
@@ -17,6 +17,7 @@ function InsideLayout () {
       <InsideStack.Screen name="Home" component={Home} />
       <InsideStack.Screen name="Read Score" component={ScoreReader} />
       <InsideStack.Screen name="Pitch" component={PitchChecker} />
+      <InsideStack.Screen name="JianpuPage" component={JianpuPage} />
     </InsideStack.Navigator>
   );
 }
