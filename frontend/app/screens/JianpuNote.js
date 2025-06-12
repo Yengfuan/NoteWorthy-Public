@@ -14,7 +14,7 @@ const JianpuNoteSVG = ({ num = "1", isSharp = false , isFlat = false , octaveDot
             "5" : require('../../assets/5.png'),
             "6" : require('../../assets/6.png'),
             "7" : require('../../assets/7.png'),
-            "-" : require('../../assets/-.png'),
+            "dash" : require('../../assets/-.png'),
           }
   
           if (imageMap[int]) {

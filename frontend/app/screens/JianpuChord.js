@@ -26,16 +26,6 @@ const JianpuChord = ({ notes = [], underline = 0}) => {
   const heightArray = notes.map((note,index) => heightOfNote(note, index));
   return (
     <Svg width={width} height={height}>
-      {(<Rect
-        x="0"
-        y="0"
-        width={width}
-        height={height}
-        stroke="black" 
-        fill="white"
-        strokeWidth="1"
-        />
-      )}
 
       {notes.map((note, index) => (
         <JianpuNoteSVG

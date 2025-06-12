@@ -1,29 +1,25 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, Image, Text, Button } from 'react-native';
+import { View, ScrollView, StyleSheet, Text } from 'react-native';
+import JianpuChord from './JianpuChord';
 
-const JianpuPage = ({ navigation, output}) => {
-  
-  console.log('Jianpu Output:', `${output}`);
-  
+const JianpuPage = ({ route }) => {
+  const { output } = route.params;
+
 
   return (
-    <View>
-      <Text>{123}</Text>
-    </View>
-    // <View style={styles.container}>
-    //   <Text style={styles.title}>Jianpu Output</Text>
-    //   <ScrollView contentContainerStyle={styles.scrollContainer}>
-    //     {svgUris.map((uri, index) => (
-    //       <Image
-    //         key={index}
-    //         source={{ uri }}
-    //         style={styles.svgImage}
-    //         resizeMode="contain"
-    //       />
-    //     ))}
-    //   </ScrollView>
-    //   <Button title="Back to Home" onPress={() => navigation.navigate('Home')} />
-    // </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Jianpu Output</Text>
+
+       {output.map((measure, mIndex) => (
+        <View key={`measure-${mIndex}`} style={styles.measure}>
+          {measure.map((chord, cIndex) => (
+            <View key={`chord-${cIndex}`} style={styles.chord}>
+              <JianpuChord notes={chord.notes} underline={chord.underline} />
+            </View>
+          ))}
+        </View>
+      ))} 
+    </ScrollView>
   );
 };
 
@@ -31,20 +27,20 @@ export default JianpuPage;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 20,
-  },
-  scrollContainer: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  svgImage: {
-    width: '100%',
-    height: 150,
-    marginBottom: 10,
+  measure: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    flexWrap: 'wrap',
+  },
+  chord: {
+    marginRight: 10,
   },
 });

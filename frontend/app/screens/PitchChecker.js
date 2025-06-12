@@ -1,13 +1,73 @@
-import {View, Text, TextInput, Button, StyleSheet} from 'react-native';
+import {View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image} from 'react-native';
 import React from 'react';
+import Home from './Home';
+import Ionicons from "@expo/vector-icons/Ionicons";
+
+// import PitchDetectorModule from '../../modules/pitch-detector/src/PitchDetectorModule';
 
 const PitchChecker = ({ navigation }) => {
+    const [message, setMessage] = React.useState('');
+    const handleClick = () => {
+        // Here you would typically call the native module to start pitch detection
+        // PitchDetectorModule.startPitchDetection((result) => {
+        //     setMessage(`Detected pitch: ${result}`);
+        // }, (error) => {
+        //     setMessage(`Error: ${error}`);
+        // });
+        setMessage('Detecting pitch...');
+    }
     return (
-        <View> 
-            <Text>PitchChecker</Text>
-            <Button title = "Home" onPress ={() => navigation.navigate('Home')} />
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff'}}>
+            <PitchCheckerButton onPress={handleClick}/>
+            {message !== '' && (
+                <Text style={{marginTop: 20, fontSize: 16, color: '#333'}}>{message}</Text>
+            )}
+            <HomeButton onPress={() => navigation.navigate('Home')} />
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    bottomContainer: {
+        position: 'absolute',
+        bottom: 30, // distance from bottom
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+    },
+    button: {
+        backgroundColor: '#007BFF',
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 20,
+    },
+    buttonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        textAlign: 'center',
+    },
+});
+
+const PitchCheckerButton = ({ onPress }) => {
+    return (
+        <TouchableOpacity style={styles.button} onPress={onPress}>
+            <Ionicons name="mic" size={50} color="white" />
+        </TouchableOpacity>
+    );
+}
+
+const HomeButton = ({ onPress }) => {
+    return (
+        <View style={styles.bottomContainer}>
+        <TouchableOpacity style={styles.button} onPress={onPress}>
+           <View style={{flexDirection: 'column', alignItems: 'center'}}>
+                <Ionicons name="home" size={24} color="white" />
+                <Text style={styles.buttonText}>Home</Text>
+            </View>
+        </TouchableOpacity>
+        </View>
+    );
+}
+
 
 export default PitchChecker;
