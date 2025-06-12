@@ -1,6 +1,7 @@
-import {View, Text, TextInput, Button, StyleSheet, ScrollView, Alert} from 'react-native';
+import {View, Text, TextInput, Button, StyleSheet, ScrollView, Alert, TouchableOpacity, Image} from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import React, { useState } from 'react';
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const ScoreReader = ({ navigation }) => {
     const [key, setKey] = useState('');
@@ -36,7 +37,7 @@ const ScoreReader = ({ navigation }) => {
         formData.append('key', key);
 
         try {
-            const response = await fetch('http://INSERT_OWN_IP/upload', {
+            const response = await fetch('http://172.31.6.76:5001/upload', {
               method: 'POST',
               headers: {
                 'Content-Type': 'multipart/form-data',
@@ -49,8 +50,7 @@ const ScoreReader = ({ navigation }) => {
             console.log('Response JSON:', json);
       
             if (response.ok) {
-              const jianpuText = json.jianpu.map(measure => measure.join(' ')).join('\n');
-              setResult(jianpuText);
+              navigation.navigate('JianpuPage', { output: json.jianpu });
             } else {
               setResult(`Error: ${json.error}`);
             }
@@ -59,10 +59,13 @@ const ScoreReader = ({ navigation }) => {
           }
         };
 
+
+
+       
     
     
     return (
-        <View style={styles.container}>
+        <View style={styles.container} >
             <Text style={styles.title}>Score Reader</Text>
             <Button title="Pick Music File" onPress={pickFile} />
             <Text style={styles.text}>Selected File: {file ? file.assets[0].name : 'None'}</Text>
@@ -76,12 +79,8 @@ const ScoreReader = ({ navigation }) => {
     
             <Button title="Convert to Jianpu" onPress={uploadFile} />
     
-            <Text style={styles.outputLabel}>Jianpu Output:</Text>
-            <ScrollView style={styles.scroll}>
-              <Text>{result}</Text>
-            </ScrollView>
 
-            <Button title = "Home" onPress ={() => navigation.navigate('Home')} />
+            <HomeButton onPress={() => navigation.navigate('Home')} />
         </View>
           );
 
@@ -95,6 +94,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginTop: 50,
     flex: 1,
+    backgroundColor: '#ffffff',
   },
   text: {
     marginVertical: 10,
@@ -112,6 +112,37 @@ const styles = StyleSheet.create({
   scroll: {
     marginTop: 10,
     maxHeight: 300,
+    flexDirection : 'row',
   },
+  bottomContainer: {
+        position: 'absolute',
+        bottom: 30, // distance from bottom
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+    },
+  button: {
+        backgroundColor: '#007BFF',
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 20,
+    },
+  buttonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        textAlign: 'center',
+    },
 });
 
+const HomeButton = ({ onPress }) => {
+    return (
+        <View style={styles.bottomContainer}>
+        <TouchableOpacity style={styles.button} onPress={onPress}>
+           <View style={{flexDirection: 'column', alignItems: 'center'}}>
+                <Ionicons name="home" size={24} color="white" />
+                <Text style={styles.buttonText}>Home</Text>
+            </View>
+        </TouchableOpacity>
+        </View>
+    );
+}
