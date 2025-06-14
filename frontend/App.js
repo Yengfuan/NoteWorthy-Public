@@ -1,15 +1,15 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { use, useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from "@expo/vector-icons/Ionicons";
 /* React Native Imports */
+import { SplashScreen } from './app/screens/SplashScreen';
 import Login from './app/screens/Login';
+import Loading from './app/screens/Loading';
 import { ScoreReader, PitchChecker, Home, JianpuPage } from './app/screens';
+import { AuthContext, AuthProvider }from './app/screens/AuthContext';
 /* Screens Imports */
-import { onAuthStateChanged } from 'firebase/auth';
-import { FIREBASE_AUTH } from './firebase-config'
-/* Firebase Imports */;
+
 
 
 const Stack = createNativeStackNavigator();
@@ -19,13 +19,6 @@ const Tab = createBottomTabNavigator();
 
 function InsideTabs () {
   return (
-    // <InsideStack.Navigator>
-    //   <InsideStack.Screen name="Home" component={Home} />
-    //   <InsideStack.Screen name="Read Score" component={ScoreReader} />
-    //   <InsideStack.Screen name="Pitch" component={PitchChecker} />
-    //   <InsideStack.Screen name="JianpuPage" component={JianpuPage} />
-    // </InsideStack.Navigator>
-
     <Tab.Navigator screenOptions={({ route }) => ({
       tabBarIcon: ({ focused, color, size }) => {
         let iconName;
@@ -46,37 +39,36 @@ function InsideTabs () {
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Read Score" component={ScoreReader} />
       <Tab.Screen name="Pitch" component={PitchChecker} />
-      <Tab.Screen name="JianpuPage" component={JianpuPage} />
     </Tab.Navigator>
   );
 }
 
-export default function App() {
-  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      console.log('user', user);
-      setUser(user);
-  });
- },  []);
+export default function App() {
 
   return (
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName='Login'> 
-          {user ? (
-            <Stack.Screen 
-            name='Inside' 
-            component={InsideTabs} 
-            options={{ headerShown: false }} />
-          ) : 
-          (<Stack.Screen 
-          name='Login' 
-          component={Login} 
-          options={{ headerShown: false }} />) }
-          {/* Add other screens here as needed */}
+    <AuthProvider>
+      <AuthContext.Consumer>
+        {({state}) => (
+          <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {state.isLoading && state.error == null ? (
+              <Stack.Screen name="Splash" component={SplashScreen} />
+            ) : state.user == null ? (
+              <Stack.Screen name="Login" component={Login} />
+              // add Sign Up screen here 
+            ) : (
+              <>
+              <Stack.Screen name="Splash" component={Loading} />
+              <Stack.Screen name="Inside" component={InsideTabs} />
+              {/* Sign In Successful */}
+              </>
+            )}
           </Stack.Navigator>
-      </NavigationContainer>
+        </NavigationContainer>
+      )}  
+      </AuthContext.Consumer>
+    </AuthProvider>
   );
 }
 

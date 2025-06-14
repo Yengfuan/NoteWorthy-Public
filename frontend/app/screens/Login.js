@@ -1,58 +1,33 @@
-import {View, Text, TextInput, Image, StyleSheet, Button, ActivityIndicator, KeyboardAvoidingView} from 'react-native';
-import React from 'react';
-import { FIREBASE_AUTH } from '../../firebase-config';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import {View, Text, TextInput, Image, StyleSheet, Button, ActivityIndicator, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { AuthContext } from './AuthContext';
 
+
+console.log("Login loading")
+    
 const Login = () => {
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
-    const [loading, setLoading] = React.useState(false);
-    const auth = FIREBASE_AUTH;
+    const { signIn, signUp } = useContext(AuthContext);
 
-    const handleLogIn = async () => {
-        setLoading(true);
-        try {
-            const response = await signInWithEmailAndPassword(auth, email, password);
-            console.log(response);
-            alert('Login successful!');
-        } catch (error) {
-            console.log(error);
-            alert('Login failed: ' + error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const handleRegister = async () => {
-        setLoading(true);
-        try {
-            const response = await createUserWithEmailAndPassword(auth, email, password);
-            console.log(response);
-            alert('Sign up successful! Check your emails!');
-        } catch (error) {
-            console.log(error);
-            alert('Sign up failed: ' + error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     return (
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.container}>
-            <KeyboardAvoidingView behavior="padding">
-                <Image source={require('../../assets/Noteworthy-Icon.png')}/>
+
+                <Image source={require('../../assets/Noteworthy-Icon.png')} style={{ width: '100%', height: '10%', resizeMode: 'contain' }} />
                 <TextInput value={email} style={styles.input} placeholder="Email" autoCapitalize="none" onChangeText={(text) => setEmail(text)} />
                 <TextInput value={password} style={styles.input} placeholder="Password" secureTextEntry={true} onChangeText={(text) => setPassword(text)} />
-            
-                { loading ? (<ActivityIndicator size="large" color="#0000ff" />
-                ) : (
-                <>
-                <Button title="Login" onPress={handleLogIn} />
-                <Button title="Create Account" onPress={handleRegister} />
-                </>
-                )}
-            </KeyboardAvoidingView>
+
+                <TouchableOpacity style={styles.button} onPress={() => signIn(email, password)}>
+                    <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.button} onPress={() => signUp(email, password)}>
+                    <Text style={styles.buttonText}>Create Account</Text>
+                </TouchableOpacity>
         </View>
+        </KeyboardAvoidingView>
     )
 }
 
@@ -71,5 +46,18 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         padding: 10,
         backgroundColor: '#fff'
-    }
+    },
+    button: {
+        backgroundColor: '#007BFF',
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 20,
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+        buttonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        textAlign: 'center',
+    }, 
 });
