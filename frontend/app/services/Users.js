@@ -1,0 +1,122 @@
+import { db } from '../../firebase-config';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  updateDoc,
+  setDoc,
+} from "firebase/firestore";
+
+{/*
+    getUserByUid: Fetches a user's document from Firestore by their UID.
+searchUsersByUsername: Looks for users whose username matches exactly (case-insensitive if you store a lowercased version in Firestore).
+searchUsersByEmail: Finds users by their email (exact match).
+updateUserProfile: Updates fields for a user's document.
+createUserProfile: Creates a user document on signup (call this after the user registers with Firebase Auth).
+    */}
+
+/**
+ * Fetch a user profile by their UID
+ * @param {string} uid - The Firebase Auth UID of the user
+ * @returns {Promise<Object|null>} - Returns user data object or null if not found
+ */
+export async function getUserByUid(uid) {
+  try {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      return { uid: userSnap.id, ...userSnap.data() };
+    }
+    return null;
+  } catch (e) {
+    console.error("Error fetching user by UID:", e);
+    alert("Error fetching user by UID:", e.message)
+    throw e;
+  }
+}
+
+/**
+ * Search users by their username (case-insensitive, exact match)
+ * @param {string} username - The username to search for
+ * @returns {Promise<Array>} - Returns array of user objects
+ */
+export async function searchUsersByUsername(username) {
+  try {
+    const usersCol = collection(db, "users");
+    // Firestore doesn't support case-insensitive search natively.
+    // You can store a lowercased "username_lowercase" field for easier search.
+    const q = query(usersCol, where("username_lowercase", "==", username.toLowerCase()));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.error("Error searching users by username:", e);
+    alert("Error searching users by username:", e.message)
+    throw e;
+  }
+}
+
+/**
+ * Search users by their email (exact match)
+ * @param {string} email - The email to search for
+ * @returns {Promise<Array>} - Returns array of user objects
+ */
+export async function searchUsersByEmail(email) {
+  try {
+    const usersCol = collection(db, "users");
+    const q = query(usersCol, where("email", "==", email));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.error("Error searching users by email:", e);
+    alert("Error searching users by email:", e.message)
+    throw e;
+  }
+}
+
+/**
+ * Update a user's profile data.
+ * 
+ * @param {string} uid - The user's Firebase Auth UID
+ * @param {Object} data - The data to update (e.g., { displayName, avatarUrl, ... })
+ * @returns {Promise<void>}
+ */
+export async function updateUserProfile(uid, data) {
+  try {
+    const userRef = doc(db, "users", uid);
+    await updateDoc(userRef, data);
+  } catch (e) {
+    console.error("Error updating user profile:", e);
+    alert("Error updating user profile:", e.message)
+    throw e;
+  }
+}
+
+/**
+ * Create a user document (used on sign up)
+ * 
+ * @param {string} uid - The user's Firebase Auth UID
+ * @param {Object} data - The user data (should at least include displayName, email, username, etc.)
+ * @returns {Promise<void>}
+ */
+export async function createUserProfile(uid, data) {
+  try {
+    // Example: store a lowercase version of the username for easier search
+    const userDoc = {
+      ...data,
+      displayName: data.username || '',
+      username_lowercase: data.username ? data.username.toLowerCase() : '',
+      email: data.email || '',
+      createdAt: Date.now(),
+    };
+
+    await setDoc(doc(db, "users", uid), userDoc);
+    console.log("User profile created successfully!")
+  } catch (e) {
+    console.error("Error creating user profile:", e);
+    alert("Error creating user profile:", e.message)
+    throw e;
+  }
+}

@@ -21,10 +21,8 @@ const Home = ( { navigation }) => {
 const PitchCheckerButton = ({ onPress }) => {
     return (
         <TouchableOpacity style={styles.button} onPress={onPress}>
-            <View style={{flexDirection: 'column', alignItems: 'center'}}>
                 <Ionicons name="mic" size={24} color="white" />
                 <Text style={styles.buttonText}>Check Pitch</Text>
-            </View>
         </TouchableOpacity>
     );
 }
@@ -32,10 +30,8 @@ const PitchCheckerButton = ({ onPress }) => {
 const ReadScoreButton = ({ onPress }) => {
     return (
         <TouchableOpacity style={styles.button} onPress={onPress}>
-            <View style={{flexDirection: 'column', alignItems: 'center'}}>
                 <Ionicons name="barcode-outline" size={24} color="white" />
                 <Text style={styles.buttonText}>Read Score</Text>
-            </View>
         </TouchableOpacity>
     );
 }
@@ -44,10 +40,8 @@ const LogoutButton = ({ onPress }) => {
     return (
         <View style={styles.bottomContainer}>
         <TouchableOpacity style={styles.button} onPress={onPress}>
-            <View style={{flexDirection: 'column', alignItems: 'center'}}>
-                <Ionicons name="log-out-outline" size={30} color="white" />
+                <Ionicons name="log-out-outline" size={24} color="white" />
                 <Text style={styles.buttonText}>Log Out</Text>
-            </View>
         </TouchableOpacity>
         </View>
     );
@@ -68,11 +62,13 @@ const styles = StyleSheet.create({
         marginTop: 20,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
         textAlign: 'center',
+        marginLeft: 10,
     }, 
 });
 

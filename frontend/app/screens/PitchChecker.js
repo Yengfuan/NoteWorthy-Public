@@ -17,7 +17,7 @@ const PitchChecker = ({ navigation }) => {
         setMessage('Detecting pitch...');
     }
     return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff'}}>
+        <View style={styles.container}>
             <PitchCheckerButton onPress={handleClick}/>
             {message !== '' && (
                 <Text style={{marginTop: 20, fontSize: 16, color: '#333'}}>{message}</Text>
@@ -28,6 +28,13 @@ const PitchChecker = ({ navigation }) => {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1, 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        backgroundColor: '#ffffff',
+        paddingTop: 50,
+    }, 
     bottomContainer: {
         position: 'absolute',
         bottom: 30, // distance from bottom

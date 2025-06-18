@@ -67,7 +67,9 @@ const ScoreReader = ({ navigation }) => {
     return (
         <View style={styles.container} >
             <Text style={styles.title}>Score Reader</Text>
-            <Button title="Pick Music File" onPress={pickFile} />
+
+            <PickFileButton onPress={() => pickFile} />
+
             <Text style={styles.text}>Selected File: {file ? file.assets[0].name : 'None'}</Text>
     
             <TextInput
@@ -76,9 +78,8 @@ const ScoreReader = ({ navigation }) => {
             onChangeText={setKey}
             style={styles.input}
             />
-    
-            <Button title="Convert to Jianpu" onPress={uploadFile} />
-    
+
+            <JianpuButton onPress={() => uploadFile} />
 
             <HomeButton onPress={() => navigation.navigate('Home')} />
         </View>
@@ -91,10 +92,12 @@ export default ScoreReader;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    marginTop: 50,
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     flex: 1,
     backgroundColor: '#ffffff',
+    gap: 20,
   },
   text: {
     marginVertical: 10,
@@ -145,4 +148,20 @@ const HomeButton = ({ onPress }) => {
         </TouchableOpacity>
         </View>
     );
+}
+
+const JianpuButton = ({onPress}) => {
+  return (
+        <TouchableOpacity style={styles.button} onPress={onPress}>
+          <Text style={styles.buttonText}>Convert to Jianpu</Text>
+        </TouchableOpacity>
+  )
+}
+
+const PickFileButton = ({onPress}) => {
+  return (
+        <TouchableOpacity style={styles.button} onPress={onPress}>
+          <Text style={styles.buttonText}>Pick Music File</Text>
+        </TouchableOpacity>
+  )
 }
