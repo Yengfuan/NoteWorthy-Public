@@ -1,4 +1,4 @@
-import { db } from '../../firebase-config';
+import { db, FIREBASE_AUTH } from '../../firebase-config';
 import {
   collection,
   doc,
@@ -8,6 +8,9 @@ import {
   where,
   updateDoc,
   setDoc,
+  orderBy,
+  endAt,
+  startAt,
 } from "firebase/firestore";
 
 {/*
@@ -45,10 +48,17 @@ export async function getUserByUid(uid) {
  */
 export async function searchUsersByUsername(username) {
   try {
+    if (!username) return [];
+
     const usersCol = collection(db, "users");
     // Firestore doesn't support case-insensitive search natively.
     // You can store a lowercased "username_lowercase" field for easier search.
-    const q = query(usersCol, where("username_lowercase", "==", username.toLowerCase()));
+    const q = query(
+      usersCol, 
+      orderBy("username_lowercase"), 
+      startAt(username.toLowerCase()), 
+      endAt(username.toLowerCase() + '\uf8ff')
+    );
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
   } catch (e) {
@@ -109,6 +119,7 @@ export async function createUserProfile(uid, data) {
       displayName: data.username || '',
       username_lowercase: data.username ? data.username.toLowerCase() : '',
       email: data.email || '',
+      bio: data.bio || '',
       createdAt: Date.now(),
     };
 
@@ -120,3 +131,27 @@ export async function createUserProfile(uid, data) {
     throw e;
   }
 }
+
+export async function fetchUserData() {
+    const user = FIREBASE_AUTH.currentUser;
+
+    if (!user) return null;
+
+    try {
+
+      const userDocRef = doc(db, 'users', user.uid);
+      const userSnapshot = await getDoc(userDocRef);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        return userData;
+      }
+    else {
+      console.warn("User document not found.")
+      return null;
+    }
+  } catch (e) {
+    console.error("Error fetching user data:", e)
+    throw(e);
+  }
+};

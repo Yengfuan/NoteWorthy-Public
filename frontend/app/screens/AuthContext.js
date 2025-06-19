@@ -1,12 +1,22 @@
-import React, { useMemo, useReducer, createContext, Children } from 'react';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import React, { useMemo, useReducer, createContext } from 'react';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut 
+} from 'firebase/auth';
 import { FIREBASE_AUTH } from '../../firebase-config';
-import { createUserProfile } from '../services/Users';
 
 
 export const AuthContext = createContext();
 
 const auth = FIREBASE_AUTH;
+
+const initialState = {
+  isLoading: true,
+  user: null,
+  isSignout: false,
+  error: null,
+};
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -49,12 +59,7 @@ const authReducer = (state, action) => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, {
-    isLoading: true,
-    user: null,
-    isSignout: false,
-    error: null,
-  });
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
   React.useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -64,7 +69,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const authContext = useMemo(() => ({
-    signIn: async (email, password) => {
+
+   signIn: async (email, password) => {
       dispatch({ type: 'LOADING' });
       try {
         const res = await signInWithEmailAndPassword(auth, email, password);
@@ -75,6 +81,7 @@ export const AuthProvider = ({ children }) => {
         alert('Login failed: ' + e.message);
       }
     },
+
     signOut: () => {
       signOut(auth).then(() => {
         dispatch({ type: 'SIGN_OUT' });
@@ -84,6 +91,7 @@ export const AuthProvider = ({ children }) => {
         alert('Sign out failed: ' + e.message);
       });
     },
+
     signUp: async (email, password) => {
       dispatch({ type: 'LOADING' });
       try {

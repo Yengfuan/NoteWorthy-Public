@@ -10,6 +10,7 @@ const Home = ( { navigation }) => {
     return (
         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
             <View>
+                {/* <ProfileButton /> */}
                 <ReadScoreButton onPress={() => navigation.navigate('Read Score')} />
                 <PitchCheckerButton onPress={() => navigation.navigate('Pitch')} />
             </View>
@@ -25,6 +26,15 @@ const PitchCheckerButton = ({ onPress }) => {
                 <Text style={styles.buttonText}>Check Pitch</Text>
         </TouchableOpacity>
     );
+}
+
+const ProfileButton = ({ onPress }) => {
+    return (
+        <TouchableOpacity style={styles.button} onPress={onPress}>
+            <Ionicons name="person" size={20} color="white" />
+            <Text style={styles.buttonText}>Profile</Text>
+        </TouchableOpacity>
+    )
 }
 
 const ReadScoreButton = ({ onPress }) => {
@@ -62,13 +72,15 @@ const styles = StyleSheet.create({
         marginTop: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
     },
     buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
         textAlign: 'center',
-        marginLeft: 10,
+        marginLeft: 6,
     }, 
 });
 
