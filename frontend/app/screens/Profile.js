@@ -3,81 +3,17 @@ import React, {useEffect, useState} from 'react';
 import { fetchUserData, updateUserProfile } from '../services/Users';
 import { FIREBASE_AUTH } from '../../firebase-config';
 import UserProfileView from './UserProfileView';
-
-// const Profile = () => {
-
-//     const [username, setUsername] = useState('');
-//     const [bio, setBio] = useState('');
-//     const [editProfile, setEditProfile] = useState('');
-//     const [editMode, setEditMode] = useState(false);
-
-
-//     useEffect(() => {
-//         const loadUser = async () => {
-//             try {
-//                 const data = await fetchUserData();
-//                 if (data) {
-//                     setUsername(data.username);
-//                 }
-//             } catch (e) {
-//                 console.error("Failed to load user:", e)
-//             }
-//         }
-//         loadUser();
-//     }, []);
-
-//     const handleSaveProfile = async () => {
-//       try {
-//         const user = FIREBASE_AUTH.currentUser;
-//         if (user) {
-//           await updateUserProfile(user.uid, { bio });
-//         }
-//         setEditProfile(false);
-//         setEditMode(false);
-//         console.log("Profile updated successfully")
-//       } catch (e) {
-//         console.error("Failed to update profile", e);
-//       }
-//     };
-
-
-//     return (
-//         <View style={styles.container}>
-//           <View style={{flexDirection: 'row'}}>
-//             <Image source={require('../../assets/default-pfp.jpg')} style={[styles.profileImage, {marginRight: '5%'}]} />
-//             <Text style={[styles.username, {marginTop: '2%'}]}>{username}</Text>
-//           </View>
-
-
-              
-
-//               {editMode ? (
-//                 <>
-//                 <SaveChangesButton onPress={handleSaveProfile} />
-//                 <TextInput value={bio} onChangeText={(text) => setBio(text)} placeholder='Set bio'/>
-//                 </>
-//               ) : (
-//                 <View style={{flexDirection: 'column', alignItems: 'left'}}>
-//                   {bio == ''
-//                   ?
-//                   <Text style={[styles.bottomMargin, {marginHorizontal: '3%', color: '#666'}]} >Set bio</Text>
-//                   :
-//                   <Text style={[styles.bottomMargin, styles.bio, {marginHorizontal: '3%'}]} >{ bio }</Text>}
-
-//                   <View style={styles.buttonRow}>
-//                     <EditProfileButton onPress={() => setEditMode(true)} />
-
-//                   </View>
-//                 </View>
-//               )}
-//         </View>
-//     )
-// }
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 
 const Profile = () => {
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
+  const [friendsCount, setFriendsCount] = useState(0);
+  const [uploadCount, setUploadCount] = useState(0);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -85,6 +21,8 @@ const Profile = () => {
       if (data) {
         setUsername(data.username);
         setBio(data.bio || '');
+        setFriendsCount(data.friendsCount || 0);
+        setUploadCount(data.uploadCount || 0);
       }
     };
     loadUser();
@@ -99,15 +37,77 @@ const Profile = () => {
   };
 
   return (
-    <UserProfileView
+    <View style={{flex:1}}>
+      <UserProfileView
       username={username}
       bio={bio}
       editable={true}
       onChangeBio={setBio}
       onSave={handleSave}
-    />
+      friendsCount={friendsCount}
+      uploadCount={uploadCount} 
+      />
+     <NotifsButton onPress={() => navigation.navigate('Notifications')} />
+    </View>
   );
 };
 
 export default Profile;
 
+const styles = StyleSheet.create({
+    button: {
+        backgroundColor: '#FFFFFF',
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 20,
+        flexDirection: 'column',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        borderWidth: 2,
+        borderColor: '#007BFF',
+    },
+    buttonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        textAlign: 'center',
+        marginLeft: 6,
+    },
+    bottomRight: {
+      position: 'absolute',
+      bottom: 20,  // Distance from bottom edge
+      right: 20,   // Distance from right edge
+    },
+  badge: {
+      position: 'absolute',
+      top: -5,
+      right: -5,
+      backgroundColor: 'red',
+      borderRadius: 10,
+      width: 20,
+      height: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    badgeText: {
+      color: 'white',
+      fontSize: 12,
+      fontWeight: 'bold',
+    },
+
+});
+
+const NotifsButton = ({onPress, count}) => {
+  return (
+    <View style={styles.bottomRight}>
+    <TouchableOpacity style={styles.button} onPress={onPress}>
+      <Ionicons name="notifications-outline" size={24} color='grey' />
+      { count > 0 && (
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{count}</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+    </View>
+  );
+};

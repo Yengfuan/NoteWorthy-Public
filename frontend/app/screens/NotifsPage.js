@@ -1,0 +1,128 @@
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { getIncomingRequests, respondToFriendRequest } from '../services/FriendRequests';
+import { FIREBASE_AUTH } from '../../firebase-config';
+import { Ionicons } from '@expo/vector-icons';
+import { GoBackButton } from './FriendProfile';
+import { useNavigation } from '@react-navigation/native';
+
+const NotifsPage = () => {
+
+    const navigation = useNavigation();
+    
+    const [requests, setRequests] = useState([]);
+    const currentUser = FIREBASE_AUTH.currentUser;
+
+    useEffect(() => {
+        const fetchRequests = async () => {
+            const data = await getIncomingRequests(currentUser.uid);
+            setRequests(data);
+        };
+
+        if (currentUser) fetchRequests();
+    }, []
+    );
+
+    const handleRespond = async (requestId, accepted, currentUserId, otherUserId) => {
+        try {
+            await respondToFriendRequest(requestId, accepted, currentUserId, otherUserId);
+            // Remove the request from state after action
+            setRequests(prev => prev.filter(r => r.id !== requestId));
+        } catch (error) {
+            console.error('Failed to respond:', error);
+        }
+    };
+
+
+    return (
+        <View style={styles.container}>
+        {requests.length === 0 ? (
+            <Text style={styles.message}>No new notifications at the moment.</Text>
+        ) : (
+            requests.map(request => (
+            <View key={request.id} style={styles.requestCard}>
+                <Text>{request.fromUsername} sent you a friend request</Text>
+                <View style={styles.actions}>
+                <TouchableOpacity
+                    onPress={() => handleRespond(request.id, true, currentUser.uid, request.from)}
+                    style={styles.accept}
+                >
+                    <Ionicons name="checkmark" size={20} color="white" />
+                    <Text style={styles.actionText}>Accept</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => handleRespond(request.id, false, currentUser.uid, request.from)}
+                    style={styles.reject}
+                >
+                    <Ionicons name="close" size={20} color="white" />
+                    <Text style={styles.actionText}>Reject</Text>
+                </TouchableOpacity>
+                </View>
+            </View>
+            ))
+        )}
+        <GoBackButton onPress={() => navigation.navigate('Me')} />
+        </View>
+
+    );
+} 
+
+
+export default NotifsPage;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingTop: '1%',
+    paddingBottom: '5%',
+  },
+  requestCard: {
+    backgroundColor: '#f9f9f9',
+    padding: 16,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2, // for Android shadow
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+  },
+  accept: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50', // green
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  reject: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F44336', // red
+    padding: 10,
+    borderRadius: 5,
+  },
+  actionText: {
+    color: 'white',
+    marginLeft: 6,
+    fontWeight: 'bold',
+  },
+  message: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 40,
+  },
+});
+

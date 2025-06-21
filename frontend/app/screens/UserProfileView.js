@@ -8,17 +8,31 @@ const UserProfileView = ({
   onEdit,
   onSave,
   onChangeBio,
+  friendsCount,
+  uploadCount,
 }) => {
   const [editMode, setEditMode] = useState(false);
 
   return (
     <View style={styles.container}>
-      <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'row', marginBottom: '3%' }}>
         <Image
           source={require('../../assets/default-pfp.jpg')}
           style={[styles.profileImage, { marginRight: '5%' }]}
         />
-        <Text style={[styles.username, { marginTop: '2%' }]}>{username}</Text>
+        <View style={{ flexDirection: 'column'}}>
+          <Text style={[styles.username]}>{username}</Text>
+          <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+            <View style={{marginRight: '10%'}}>
+            <Text style={styles.varText}>{uploadCount}</Text>
+            <Text style={styles.infoText}>practices</Text>
+            </View>
+            <View>
+              <Text style={styles.varText}>{friendsCount}</Text>
+              <Text style={styles.infoText}>friends</Text>
+            </View>
+          </View>
+        </View>
       </View>
 
       {editable && editMode ? (
@@ -54,7 +68,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9f9f9',
     alignItems: 'left',
-    paddingTop: '20%',
+    paddingTop: '6%',
     paddingHorizontal: '6%',
     justifyContent: 'flex-start'
   },
@@ -104,6 +118,18 @@ const styles = StyleSheet.create({
   },
   bottomMargin: {
     marginBottom: '5%',
+  },
+  varText: {
+    fontSize: 20,
+    color: '#666',
+    marginBottom: '3%',
+    fontWeight: 'bold'
+  },
+  infoText: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: '3%',
+    fontWeight: 'bold'
   }
 });
 

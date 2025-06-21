@@ -1,9 +1,11 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Font from 'expo-font';
 import { useContext, useEffect, useState } from 'react';
+import { Image, TouchableOpacity } from 'react-native';
+
 
 /* Screens */
 import { SplashScreen } from './app/screens/SplashScreen';
@@ -13,6 +15,7 @@ import FriendsList from './app/screens/FriendsList';
 import Login from './app/screens/Login';
 import Loading from './app/screens/Loading';
 import FriendProfile from './app/screens/FriendProfile';
+import NotifsPage from './app/screens/NotifsPage';
 import { ScoreReader, PitchChecker, Home } from './app/screens';
 
 /* Auth & Context */
@@ -21,19 +24,37 @@ import { AuthContext, AuthProvider }from './app/screens/AuthContext';
 // import PitchDetector from "./modules/pitch-detector/src/PitchDetectorModule"
 
 
-
-
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const SocialsStack = createNativeStackNavigator();
 
+function LogoTitle() {
+
+  const navigation = useNavigation();
+  return(
+    <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+      <Image source={require("./assets/logo.png")} style={{ width:50, height:50 }} />
+    </TouchableOpacity>
+  )
+};
+
 function SocialsStackScreen() {
   return(
-    <SocialsStack.Navigator screenOptions={{headerShown: false}}>
+    <SocialsStack.Navigator screenOptions={{ headerShown: false }}>
       <SocialsStack.Screen name="FriendsList" component={FriendsList} /> 
       <SocialsStack.Screen name="FriendProfile" component={FriendProfile} />
     </SocialsStack.Navigator>
   )
+}
+
+const ProfileStack = createNativeStackNavigator();
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+      <ProfileStack.Screen name="Me" component={Profile} />
+      <ProfileStack.Screen name="Notifications" component={NotifsPage} />
+    </ProfileStack.Navigator>
+  );
 }
 
 function InsideTabs () {
@@ -51,17 +72,18 @@ function InsideTabs () {
 
         const [focusedIcon, unfocusedIcon] = iconMap[route.name] || [];
 
-        return <Ionicons name={focused ? focusedIcon : unfocusedIcon } size={size} color={color} />;
+        return <Ionicons name={ focused ? focusedIcon : unfocusedIcon } size={size} color={color} />;
       },
       tabBarActiveTintColor: '#000',
       tabBarInactiveTintColor: '#888',
-      headerShown: false,
+      headerTitle: (props) => <LogoTitle {...props} />,
+      headerTitleAlign: 'center'
     })}>
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Read Score" component={ScoreReader} />
       <Tab.Screen name="Pitch" component={PitchChecker} />
       <Tab.Screen name="Socials" component={SocialsStackScreen} />
-      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="Profile" component={ProfileStackScreen} />
     </Tab.Navigator>
   );
 }
@@ -72,7 +94,7 @@ function RootNavigator() {
   if (state.isLoading && state.error == null) {
     return (
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Splash" component={SplashScreen} />
         </Stack.Navigator>
       </NavigationContainer>
@@ -81,7 +103,7 @@ function RootNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         {state.user == null ? (
           <>
             <Stack.Screen name="Login" component={Login} />
@@ -123,6 +145,6 @@ export default function App() {
       <RootNavigator />
     </AuthProvider>
   );
-}
+};
 
 

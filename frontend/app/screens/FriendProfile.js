@@ -4,14 +4,31 @@ import { useState, useEffect } from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
+import { sendFriendRequest } from '../services/FriendRequests';
+import { FIREBASE_AUTH } from '../../firebase-config';
 
 
 const FriendProfile = ({ route }) => {
 
+  const userID = FIREBASE_AUTH.currentUser?.uid; // Get the current user's ID
   const navigation = useNavigation();  
-  const { uid } = route.params;
+  const { uid } = route.params; // Get the friend's ID from route parameters
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
+  const [friendRequestSent, setFriendRequestSent] = useState(false);
+  const [friendsCount, setFriendsCount] = useState(0);
+  const [uploadCount, setUploadCount] = useState(0);
+
+  const handleFriendRequest = async () => {
+    try {
+      await sendFriendRequest(userID, uid);
+      setFriendRequestSent(true);
+      alert("Friend request sent successfully");
+      console.log("Friend request sent successfully");
+    } catch (error) {
+      console.error("Failed to send friend request:", error);
+    }
+  }
 
   useEffect(() => {
     const loadFriend = async () => {
@@ -19,6 +36,8 @@ const FriendProfile = ({ route }) => {
       if (data) {
         setUsername(data.username);
         setBio(data.bio || '');
+        setFriendsCount(data.friendsCount || 0);
+        setUploadCount(data.uploadCount || 0);
       }
     };
     loadFriend();
@@ -29,17 +48,27 @@ const FriendProfile = ({ route }) => {
         <UserProfileView
         username={username}
         bio={bio}
-        editable={false}  
+        editable={false}
+        friendsCount={0}
+        uploadCount={0} 
         />
         <View style={{flexDirection:'row', justifyContent: 'space-between'}} >
             <GoBackButton onPress={() => navigation.navigate('FriendsList')}/>
-            <FriendRequestButton />
+            { friendRequestSent ? 
+                <TouchableOpacity style={[styles.button,  {backgroundColor: 'green' }]} disabled>
+                    <Ionicons name="checkmark-circle-outline" size={24} color='white' />
+                    <Text style={styles.buttonText}>Sent</Text>
+                </TouchableOpacity>
+            : 
+            <FriendRequestButton onPress={handleFriendRequest}/>
+            }
+            
         </View>
     </View>
   );
 };
 
-const GoBackButton = ({onPress}) => {
+export function GoBackButton({onPress}) {
     return (
         <TouchableOpacity style={styles.button} onPress={onPress}>
             <Ionicons name="arrow-back-circle-outline" size={24} color='white' />
@@ -49,10 +78,11 @@ const GoBackButton = ({onPress}) => {
 }
 
 const FriendRequestButton = ({onPress}) => {
+    
     return (
         <TouchableOpacity style={styles.button} onPress={onPress}>
             <Ionicons name="add-circle-outline" size={24} color='white' />
-            <Text style={styles.buttonText}>Follow</Text>
+            <Text style={styles.buttonText}>Add</Text>
         </TouchableOpacity>
     )
 }

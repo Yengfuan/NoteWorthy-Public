@@ -1,4 +1,4 @@
-import {View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
 import Home from './Home';
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -20,9 +20,8 @@ const PitchChecker = ({ navigation }) => {
         <View style={styles.container}>
             <PitchCheckerButton onPress={handleClick}/>
             {message !== '' && (
-                <Text style={{marginTop: 20, fontSize: 16, color: '#333'}}>{message}</Text>
+                <Text style={{ marginTop: 20, fontSize: 16, color: '#333' }}>{message}</Text>
             )}
-            <HomeButton onPress={() => navigation.navigate('Home')} />
         </View>
     );
 }
@@ -33,7 +32,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center', 
         alignItems: 'center', 
         backgroundColor: '#ffffff',
-        paddingTop: 50,
+        paddingTop: '1%',
     }, 
     bottomContainer: {
         position: 'absolute',
@@ -63,18 +62,6 @@ const PitchCheckerButton = ({ onPress }) => {
     );
 }
 
-const HomeButton = ({ onPress }) => {
-    return (
-        <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.button} onPress={onPress}>
-           <View style={{flexDirection: 'column', alignItems: 'center'}}>
-                <Ionicons name="home" size={24} color="white" />
-                <Text style={styles.buttonText}>Home</Text>
-            </View>
-        </TouchableOpacity>
-        </View>
-    );
-}
 
 
 export default PitchChecker;

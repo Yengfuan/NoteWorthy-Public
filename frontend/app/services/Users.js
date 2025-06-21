@@ -120,6 +120,8 @@ export async function createUserProfile(uid, data) {
       username_lowercase: data.username ? data.username.toLowerCase() : '',
       email: data.email || '',
       bio: data.bio || '',
+      friendsCount: 0,
+      uploadCount: 0,
       createdAt: Date.now(),
     };
 

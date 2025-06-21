@@ -1,4 +1,4 @@
-import {View, Text, TextInput, Button, StyleSheet, ScrollView, Alert, TouchableOpacity, Image} from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert, TouchableOpacity, Image } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import React, { useState } from 'react';
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -59,9 +59,6 @@ const ScoreReader = ({ navigation }) => {
           }
         };
 
-
-
-       
     
     
     return (
@@ -80,8 +77,6 @@ const ScoreReader = ({ navigation }) => {
             />
 
             <JianpuButton onPress={() => uploadFile} />
-
-            <HomeButton onPress={() => navigation.navigate('Home')} />
         </View>
           );
 
@@ -92,12 +87,12 @@ export default ScoreReader;
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingTop: '6%',
+    paddingBottom: '3%',
+    paddingHorizontal: '3%',
     flex: 1,
     backgroundColor: '#ffffff',
-    gap: 20,
+    gap: '2%',
   },
   text: {
     marginVertical: 10,
@@ -136,19 +131,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
 });
-
-const HomeButton = ({ onPress }) => {
-    return (
-        <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.button} onPress={onPress}>
-           <View style={{flexDirection: 'column', alignItems: 'center'}}>
-                <Ionicons name="home" size={24} color="white" />
-                <Text style={styles.buttonText}>Home</Text>
-            </View>
-        </TouchableOpacity>
-        </View>
-    );
-}
 
 const JianpuButton = ({onPress}) => {
   return (
