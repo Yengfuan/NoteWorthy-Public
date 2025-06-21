@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert, TouchableOpacity, Image } from 'react-native';
+import {View, Text, TextInput, Button, StyleSheet, ScrollView, Alert, TouchableOpacity, Image} from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import React, { useState } from 'react';
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -18,7 +18,6 @@ const ScoreReader = ({ navigation }) => {
         if (res.type !== 'cancel') {
           setFile(res);
         }
-
         
     };
 
@@ -37,7 +36,7 @@ const ScoreReader = ({ navigation }) => {
         formData.append('key', key);
 
         try {
-            const response = await fetch('http://172.31.6.76:5001/upload', {
+            const response = await fetch('http://192.168.1.16:5001/upload', {
               method: 'POST',
               headers: {
                 'Content-Type': 'multipart/form-data',
@@ -59,13 +58,16 @@ const ScoreReader = ({ navigation }) => {
           }
         };
 
+
+
+       
     
     
     return (
         <View style={styles.container} >
             <Text style={styles.title}>Score Reader</Text>
 
-            <PickFileButton onPress={() => pickFile} />
+            <PickFileButton onPress={ pickFile }  />
 
             <Text style={styles.text}>Selected File: {file ? file.assets[0].name : 'None'}</Text>
     
@@ -76,7 +78,9 @@ const ScoreReader = ({ navigation }) => {
             style={styles.input}
             />
 
-            <JianpuButton onPress={() => uploadFile} />
+            <JianpuButton onPress={ uploadFile } />
+
+            <HomeButton onPress={ () => navigation.navigate('Home')} />
         </View>
           );
 
@@ -86,13 +90,20 @@ const ScoreReader = ({ navigation }) => {
 export default ScoreReader;
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 0,
+  },
+  
   container: {
-    paddingTop: '6%',
-    paddingBottom: '3%',
-    paddingHorizontal: '3%',
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     flex: 1,
     backgroundColor: '#ffffff',
-    gap: '2%',
+    gap: 20,
   },
   text: {
     marginVertical: 10,
@@ -131,6 +142,19 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
 });
+
+const HomeButton = ({ onPress }) => {
+    return (
+        <View style={styles.bottomContainer}>
+        <TouchableOpacity style={styles.button} onPress={onPress}>
+           <View style={{flexDirection: 'column', alignItems: 'center'}}>
+                <Ionicons name="home" size={24} color="white" />
+                <Text style={styles.buttonText}>Home</Text>
+            </View>
+        </TouchableOpacity>
+        </View>
+    );
+}
 
 const JianpuButton = ({onPress}) => {
   return (

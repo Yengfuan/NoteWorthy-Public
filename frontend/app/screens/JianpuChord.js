@@ -1,5 +1,4 @@
 import React from 'react';
-import { View } from 'react-native';
 import Svg, { Rect, Text, Image as SvgImage, Circle, Line } from 'react-native-svg';
 import JianpuNoteSVG from './JianpuNote';
 
@@ -11,10 +10,6 @@ const heightOfNote = (note, index) => {
   }
 }
   
-
-
-
-
 
 const JianpuChord = ({ notes = [], underline = 0}) => {
   const width = 50;
@@ -57,7 +52,7 @@ const JianpuChord = ({ notes = [], underline = 0}) => {
         <Circle
           key={`below-${i}`}
           cx={"26.5"} 
-          cy={150 - (i * 8) } // Adjust y position for each dot
+          cy={136 + (underline * 4) + (i * 8) } // Adjust y position for each dot
           r="2.5"
           fill="black"
         />
