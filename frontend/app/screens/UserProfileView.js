@@ -1,5 +1,9 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, Dimensions, ScrollView } from 'react-native';
 import React, { useState } from 'react';
+
+const screenWidth = Dimensions.get('window').width;
+
+const imageSize = Math.max(screenWidth * 0.25, 120);
 
 const UserProfileView = ({
   username,
@@ -14,7 +18,7 @@ const UserProfileView = ({
   const [editMode, setEditMode] = useState(false);
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={{ flexDirection: 'row', marginBottom: '3%' }}>
         <Image
           source={require('../../assets/default-pfp.jpg')}
@@ -23,9 +27,9 @@ const UserProfileView = ({
         <View style={{ flexDirection: 'column'}}>
           <Text style={[styles.username]}>{username}</Text>
           <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-            <View style={{marginRight: '10%'}}>
-            <Text style={styles.varText}>{uploadCount}</Text>
-            <Text style={styles.infoText}>practices</Text>
+            <View style={{marginRight: '20%'}}>
+              <Text style={styles.varText}>{uploadCount}</Text>
+              <Text style={styles.infoText}>practices</Text>
             </View>
             <View>
               <Text style={styles.varText}>{friendsCount}</Text>
@@ -45,7 +49,7 @@ const UserProfileView = ({
           />
         </>
       ) : (
-        <View style={{ flexDirection: 'column', alignItems: 'left' }}>
+        <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
           <Text style={[styles.bottomMargin, styles.bio, { marginHorizontal: '3%' }]}>
             {bio || 'No bio yet.'}
           </Text>
@@ -57,7 +61,7 @@ const UserProfileView = ({
           )}
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -65,17 +69,17 @@ export default UserProfileView;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#f9f9f9',
-    alignItems: 'left',
-    paddingTop: '6%',
+    alignItems: 'flex-start',
+    paddingTop: '6%', 
     paddingHorizontal: '6%',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
   },
   profileImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: imageSize,
+    height: imageSize,
+    borderRadius: imageSize / 2,
     borderWidth: 2,
     borderColor: '#007BFF',
     marginBottom: '5%',
@@ -83,13 +87,11 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: '5%',
     color: '#333',
   },
   bio: {
     fontSize: 16,
     textAlign: 'left',
-    marginBottom: '8%',
   },
   buttonRow: {
     flexDirection: 'row',

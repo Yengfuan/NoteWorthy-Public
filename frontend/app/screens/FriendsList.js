@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
     },
     input: {
         marginVertical: 4,
+        paddingHorizontal: '2%',
         height: 50,
         borderWidth: 1,
         borderRadius: 4,

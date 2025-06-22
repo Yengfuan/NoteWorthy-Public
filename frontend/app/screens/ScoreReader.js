@@ -79,8 +79,6 @@ const ScoreReader = ({ navigation }) => {
             />
 
             <JianpuButton onPress={ uploadFile } />
-
-            <HomeButton onPress={ () => navigation.navigate('Home')} />
         </View>
           );
 
@@ -142,19 +140,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
 });
-
-const HomeButton = ({ onPress }) => {
-    return (
-        <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.button} onPress={onPress}>
-           <View style={{flexDirection: 'column', alignItems: 'center'}}>
-                <Ionicons name="home" size={24} color="white" />
-                <Text style={styles.buttonText}>Home</Text>
-            </View>
-        </TouchableOpacity>
-        </View>
-    );
-}
 
 const JianpuButton = ({onPress}) => {
   return (

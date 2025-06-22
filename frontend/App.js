@@ -1,14 +1,16 @@
-  import { NavigationContainer } from '@react-navigation/native';
+  import { NavigationContainer, useNavigation } from '@react-navigation/native';
   import { createNativeStackNavigator } from '@react-navigation/native-stack';
   import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
   import Ionicons from "@expo/vector-icons/Ionicons";
   import * as Font from 'expo-font';
   import { useContext, useEffect, useState } from 'react';
+  import { Image, View, Text, TouchableOpacity } from 'react-native';
 
   /* Screens */
   import { SplashScreen } from './app/screens/SplashScreen';
   import { SignUpScreen } from './app/screens/SignUpScreen';
   import  Profile  from './app/screens/Profile'
+  import NotifsPage from './app/screens/NotifsPage';
   import FriendsList from './app/screens/FriendsList';
   import Login from './app/screens/Login';
   import Loading from './app/screens/Loading';
@@ -18,14 +20,35 @@
   /* Auth & Context */
   import { AuthContext, AuthProvider }from './app/screens/AuthContext';
 
+
   // import PitchDetector from "./modules/pitch-detector/src/PitchDetectorModule"
-
-
 
 
   const Stack = createNativeStackNavigator();
   const Tab = createBottomTabNavigator();
   const SocialsStack = createNativeStackNavigator();
+  const ProfileStack = createNativeStackNavigator();
+
+  function LogoTitle() {
+    const navigation = useNavigation();
+    return (
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <Image
+          source={require('./assets/Noteworthy-Icon.png')}
+          style={{resizeMode: 'contain', alignItems: 'center' , width: 150, height: 150}}
+        />
+      </TouchableOpacity>
+    );
+  }
+
+  function ProfileStackScreen() {
+    return (
+      <ProfileStack.Navigator screenOptions={{headerShown: false}}>
+        <ProfileStack.Screen name="Me" component={Profile} />
+        <ProfileStack.Screen name="Notifications" component={NotifsPage} />
+      </ProfileStack.Navigator>
+    );
+  }
 
   function SocialsStackScreen() {
     return(
@@ -55,13 +78,14 @@
         },
         tabBarActiveTintColor: '#000',
         tabBarInactiveTintColor: '#888',
-        headerShown: false,
+        headerTitle: (props) => <LogoTitle {...props} />,
+        alignItems: 'center',
       })}>
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Read Score" component={ScoreReader} />
         <Tab.Screen name="Pitch" component={PitchChecker} />
         <Tab.Screen name="Socials" component={SocialsStackScreen} />
-        <Tab.Screen name="Profile" component={Profile} />
+        <Tab.Screen name="Profile" component={ProfileStackScreen} />
       </Tab.Navigator>
     );
   }

@@ -1,5 +1,5 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, Dimensions } from 'react-native';
+import React, {use, useEffect, useState} from 'react';
 import { fetchUserData, updateUserProfile } from '../services/Users';
 import { FIREBASE_AUTH } from '../../firebase-config';
 import UserProfileView from './UserProfileView';
@@ -7,11 +7,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 
+
 const Profile = () => {
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   const [friendsCount, setFriendsCount] = useState(0);
   const [uploadCount, setUploadCount] = useState(0);
+  const [friendRequestsCount, setFriendRequestsCount] = useState(0);
+  const user = FIREBASE_AUTH.currentUser;
+
 
   const navigation = useNavigation();
 
@@ -24,12 +28,19 @@ const Profile = () => {
         setFriendsCount(data.friendsCount || 0);
         setUploadCount(data.uploadCount || 0);
       }
+      
+      if (user) {
+        const requests = await getIncomingRequests(user.uid);
+        console.log('Incoming requests:', requests.length);
+        setFriendRequestsCount(requests.length);
+      }
+
     };
+
     loadUser();
   }, []);
 
   const handleSave = async () => {
-    const user = FIREBASE_AUTH.currentUser;
     if (user) {
       await updateUserProfile(user.uid, { bio });
       console.log('Profile updated.');
@@ -47,7 +58,9 @@ const Profile = () => {
       friendsCount={friendsCount}
       uploadCount={uploadCount} 
       />
-     <NotifsButton onPress={() => navigation.navigate('Notifications')} />
+     <NotifsButton 
+     onPress={() => navigation.navigate('Notifications')} 
+     count={friendRequestsCount} />
     </View>
   );
 };
@@ -75,39 +88,50 @@ const styles = StyleSheet.create({
     },
     bottomRight: {
       position: 'absolute',
-      bottom: 20,  // Distance from bottom edge
-      right: 20,   // Distance from right edge
+      bottom: "3%",  // Distance from bottom edge
+      right: "3%",   // Distance from right edge
     },
-  badge: {
-      position: 'absolute',
-      top: -5,
-      right: -5,
-      backgroundColor: 'red',
-      borderRadius: 10,
-      width: 20,
-      height: 20,
+    iconWrapper: {
+      position: 'relative',
       justifyContent: 'center',
       alignItems: 'center',
-    },
-    badgeText: {
-      color: 'white',
-      fontSize: 12,
-      fontWeight: 'bold',
-    },
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: 'red',
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    paddingHorizontal: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10, // ensure it’s on top
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
 
 });
 
-const NotifsButton = ({onPress, count}) => {
+const NotifsButton = ({ onPress, count }) => {
   return (
     <View style={styles.bottomRight}>
-    <TouchableOpacity style={styles.button} onPress={onPress}>
-      <Ionicons name="notifications-outline" size={24} color='grey' />
-      { count > 0 && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{count}</Text>
+      <TouchableOpacity style={styles.button} onPress={onPress}>
+        {/* Wrapper with relative positioning */}
+        <View style={styles.iconWrapper}>
+          <Ionicons name="notifications-outline" size={28} color="grey" />
+          {count > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{count}</Text>
+            </View>
+          )}
         </View>
-      )}
-    </TouchableOpacity>
+      </TouchableOpacity>
     </View>
   );
 };
+

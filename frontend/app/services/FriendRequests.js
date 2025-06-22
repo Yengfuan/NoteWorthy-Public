@@ -36,7 +36,13 @@ export async function respondToFriendRequest(requestId, accepted, currentUserId,
 
 // List incoming friend requests
 export async function getIncomingRequests(userId) { 
-    const q = query(collection(db, "friendRequests"), where("to", "==", userId), where("status", "==", "pending"));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
- }
+  const q = query(
+    collection(db, "friendRequests"),
+    where("to", "==", userId),
+    where("status", "==", "pending")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
+
