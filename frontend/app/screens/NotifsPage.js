@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { getIncomingRequests, respondToFriendRequest } from '../services/FriendRequests';
+import { getIncomingRequests, respondToFriendRequest, confirmFriendRequest } from '../services/FriendRequests';
 import { FIREBASE_AUTH } from '../../firebase-config';
 import { Ionicons } from '@expo/vector-icons';
 import { GoBackButton } from './FriendProfile';
 import { useNavigation } from '@react-navigation/native';
+import { resetNotificationCount } from '../services/Users';
 
 const NotifsPage = () => {
 
@@ -14,24 +15,33 @@ const NotifsPage = () => {
     const currentUser = FIREBASE_AUTH.currentUser;
 
     useEffect(() => {
-        const fetchRequests = async () => {
-            const data = await getIncomingRequests(currentUser.uid);
-            setRequests(data);
-        };
-
-        if (currentUser) fetchRequests();
-    }, []
-    );
-
-    const handleRespond = async (requestId, accepted, currentUserId, otherUserId) => {
-        try {
-            await respondToFriendRequest(requestId, accepted, currentUserId, otherUserId);
-            // Remove the request from state after action
-            setRequests(prev => prev.filter(r => r.id !== requestId));
-        } catch (error) {
-            console.error('Failed to respond:', error);
+        if (!currentUser) {
+          return;
         }
-    };
+
+        const unsubscribe = getIncomingRequests(currentUser.uid, (data)=> {
+            setRequests(data);
+            resetNotificationCount(currentUser.uid)
+          });
+
+        return () => {
+            unsubscribe(); // Clean up the listener on unmount
+        }
+
+}, [currentUser]);
+
+      const handleRespond = async (requestId, accepted, currentUserId, otherUserId) => {
+          try {
+              await respondToFriendRequest(requestId, accepted);
+              // Remove the request from state after action
+              if (accepted) {
+                  await confirmFriendRequest(currentUserId, otherUserId);
+              }
+              setRequests(prev => prev.filter(r => r.id !== requestId));
+          } catch (error) {
+              console.error('Failed to respond:', error);
+          }
+      };
 
 
     return (

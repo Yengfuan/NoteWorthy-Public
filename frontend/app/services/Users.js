@@ -11,6 +11,8 @@ import {
   orderBy,
   endAt,
   startAt,
+  increment,
+  onSnapshot,
 } from "firebase/firestore";
 
 {/*
@@ -122,6 +124,7 @@ export async function createUserProfile(uid, data) {
       bio: data.bio || '',
       friendsCount: 0,
       uploadCount: 0,
+      notificationCount: 0, 
       createdAt: Date.now(),
     };
 
@@ -157,3 +160,69 @@ export async function fetchUserData() {
     throw(e);
   }
 };
+
+export function listenToUserData(uid, onUpdate) {
+  const userDocRef = doc(db, 'users', uid);
+  
+  const unsubscribe = onSnapshot(userDocRef, (doc) => {
+    if (doc.exists()) {
+      const userData = { uid: doc.id, ...doc.data() };
+      onUpdate(userData);
+    } else {
+      console.warn("User document not found.");
+      onUpdate(null);
+    }
+  }, (error) => {
+    console.error("Error listening to user data:", error);
+    alert("Error listening to user data:", error.message)
+  });
+
+  return unsubscribe; // Return the unsubscribe function
+}
+
+export async function incrementNotificationCount(uid) {
+  try {
+    const userRef = doc(db, "users", uid);
+    await updateDoc(userRef, {
+      notificationCount: increment(1)
+    });
+  } catch (e) {
+    console.error("Error incrementing notification count:", e);
+    alert("Error incrementing notification count:", e.message)
+    throw e;
+  }
+}
+
+export async function resetNotificationCount(uid) {
+  try {
+    const userRef = doc(db, "users", uid);
+    await updateDoc(userRef, {
+      notificationCount: 0
+    });
+  } catch (e) {
+    console.error("Error resetting notification count:", e);
+    alert("Error resetting notification count:", e.message);
+    throw e;
+  }
+}
+
+// export async function addFriendToUser(currentUserId, friendUserId) {
+//   try {
+//     const friendDocRef = doc(db, "users", currentUserId, "friends", friendUserId);
+
+//     await setDoc(friendDocRef, {
+//       since: Date.now(),
+//       friendID: friendUserId,
+//     });
+
+//     const userDocRef = doc(db, "users", currentUserId);
+//     await updateDoc(userRef, {
+//       friends: increment(1) // Increment friends count
+//     });
+//     console.log("Friend added successfully:", friendUserId);
+//   } catch (e) {
+//     console.error("Error adding friend to user:", e);
+//     alert("Error adding friend to user:", e.message);
+//     throw e;
+//   }
+// }

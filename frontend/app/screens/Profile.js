@@ -1,6 +1,6 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, Dimensions } from 'react-native';
 import React, {use, useEffect, useState} from 'react';
-import { fetchUserData, updateUserProfile } from '../services/Users';
+import { listenToUserData, updateUserProfile } from '../services/Users';
 import { FIREBASE_AUTH } from '../../firebase-config';
 import UserProfileView from './UserProfileView';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,28 +20,35 @@ const Profile = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const loadUser = async () => {
-      const data = await fetchUserData();
-      if (data) {
-        setUsername(data.username);
-        setBio(data.bio || '');
-        setFriendsCount(data.friendsCount || 0);
-        setUploadCount(data.uploadCount || 0);
-      }
-      
-      if (user) {
-        const requests = await getIncomingRequests(user.uid);
-        console.log('Incoming requests:', requests.length);
-        setFriendRequestsCount(requests.length);
-      }
+  if (!user) return;
 
-    };
+  // Listen for real-time user data updates
+  const unsubscribeUser = listenToUserData(user.uid, (data) => {
+    if (data) {
+      setUsername(data.username);
+      setBio(data.bio || '');
+      setFriendsCount(data.friendsCount || 0);
+      setUploadCount(data.uploadCount || 0);
+    }
+  });
 
-    loadUser();
-  }, []);
+  // Fetch friend requests count once (or you can add a listener too)
+  const fetchRequestsCount = async () => {
+    const requests = await getIncomingRequests(user.uid);
+    console.log('Incoming requests:', requests.length);
+    setFriendRequestsCount(requests.length);
+  };
+  fetchRequestsCount();
+
+  // Cleanup listener on unmount
+  return () => {
+    unsubscribeUser();
+  };
+}, [user]);
 
   const handleSave = async () => {
     if (user) {
+      console.log()
       await updateUserProfile(user.uid, { bio });
       console.log('Profile updated.');
     }

@@ -1,6 +1,6 @@
 import { db } from '../../firebase-config';
-import { collection, addDoc, updateDoc, doc, query, where, getDocs, setDoc } from "firebase/firestore";
-import { getUserByUid } from './Users';
+import { collection, addDoc, updateDoc, doc, query, where, getDocs, setDoc, onSnapshot, runTransaction, increment } from "firebase/firestore";
+import { getUserByUid, incrementNotificationCount } from './Users';
 
 // Send a friend request
 export async function sendFriendRequest(senderId, receiverId) { 
@@ -20,29 +20,59 @@ export async function sendFriendRequest(senderId, receiverId) {
     toUsername: receiverData.username,
     status: "pending",
     createdAt: Date.now()
-  })
+  });
+    await incrementNotificationCount(receiverId); // Increment notification count for the receiver
 }
 
 // Accept/reject a friend request
-export async function respondToFriendRequest(requestId, accepted, currentUserId, otherUserId) { const requestRef = doc(db, "friendRequests", requestId);
+export async function respondToFriendRequest(requestId, accepted) { 
+  const requestRef = doc(db, "friendRequests", requestId);
   await updateDoc(requestRef, { status: accepted ? "accepted" : "rejected" });
-
-  if (accepted) {
-    // Add each other as friends
-    await setDoc(doc(db, "users", currentUserId, "friends", otherUserId), { since: Date.now() });
-    // await setDoc(doc(db, "users", otherUserId, "friends", currentUserId), { since: Date.now() }); 
-    // Update this with Firebase function instead
-  } }
+  
+}
 
 // List incoming friend requests
-export async function getIncomingRequests(userId) { 
+export function getIncomingRequests(userId, onUpdate) { 
   const q = query(
     collection(db, "friendRequests"),
     where("to", "==", userId),
     where("status", "==", "pending")
   );
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  // Subscribe to changes and call onUpdate with the latest data
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const requests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log("Incoming friend requests:", requests);
+    onUpdate(requests);
+  });
+  return unsubscribe;
 }
 
+export async function confirmFriendRequest(currentUserId, otherUserId) {
+  const currentFriendRef = doc(db, `users/${currentUserId}/friends/${otherUserId}`);
+  const otherFriendRef = doc(db, `users/${otherUserId}/friends/${currentUserId}`);
+  const currentUserRef = doc(db, `users/${currentUserId}`);
+  const otherUserRef = doc(db, `users/${otherUserId}`);
 
+  const friendData = {
+    since: Date.now(),
+    friendID: otherUserId,
+  };
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      transaction.set(currentFriendRef, friendData);
+      transaction.set(otherFriendRef, { ...friendData, friendID: currentUserId });
+
+      transaction.update(currentUserRef, {
+        friendsCount: increment(1),
+      });
+      transaction.update(otherUserRef, {
+        friendsCount: increment(1),
+      });
+    });
+    console.log('Friend request confirmed!');
+  } catch (e) {
+    console.error('Failed to confirm friend request:', e);
+  }
+}
