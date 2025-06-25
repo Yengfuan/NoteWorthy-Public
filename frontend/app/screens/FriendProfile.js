@@ -53,7 +53,7 @@ const FriendProfile = ({ route }) => {
         uploadCount={0} 
         />
         <View style={{flexDirection:'row', justifyContent: 'space-between'}} >
-            <GoBackButton onPress={() => navigation.navigate('FriendsList')}/>
+            <GoBackButton style={styles.button} Press={() => navigation.navigate('FriendsList')}/>
             { friendRequestSent ? 
                 <TouchableOpacity style={[styles.button,  {backgroundColor: 'green' }]} disabled>
                     <Ionicons name="checkmark-circle-outline" size={24} color='white' />
@@ -68,9 +68,9 @@ const FriendProfile = ({ route }) => {
   );
 };
 
-export function GoBackButton({onPress}) {
+export function GoBackButton({onPress, style}) {
     return (
-        <TouchableOpacity style={styles.button} onPress={onPress}>
+        <TouchableOpacity style={style} onPress={onPress}>
             <Ionicons name="arrow-back-circle-outline" size={24} color='white' />
             <Text style={styles.buttonText}>Go back</Text>
         </TouchableOpacity>

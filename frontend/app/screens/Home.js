@@ -14,7 +14,7 @@ const Home = ( { navigation }) => {
                 <ReadScoreButton onPress={() => navigation.navigate('Read Score')} />
                 <PitchCheckerButton onPress={() => navigation.navigate('Pitch')} />
             </View>
-            <LogoutButton onPress={() => FIREBASE_AUTH.signOut()} />
+            <LogoutButton style={styles.bottomContainer} onPress={() => FIREBASE_AUTH.signOut()} />
         </View>
     );
 }
@@ -46,9 +46,9 @@ const ReadScoreButton = ({ onPress }) => {
     );
 }
 
-const LogoutButton = ({ onPress }) => {
+export function LogoutButton({ onPress, style }) {
     return (
-        <View style={styles.bottomContainer}>
+        <View style={style}>
         <TouchableOpacity style={styles.button} onPress={onPress}>
                 <Ionicons name="log-out-outline" size={24} color="white" />
                 <Text style={styles.buttonText}>Log Out</Text>

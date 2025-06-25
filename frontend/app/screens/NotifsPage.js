@@ -53,25 +53,19 @@ const NotifsPage = () => {
             <View key={request.id} style={styles.requestCard}>
                 <Text>{request.fromUsername} sent you a friend request</Text>
                 <View style={styles.actions}>
-                <TouchableOpacity
+
+                <AcceptButton
                     onPress={() => handleRespond(request.id, true, currentUser.uid, request.from)}
-                    style={styles.accept}
-                >
-                    <Ionicons name="checkmark" size={20} color="white" />
-                    <Text style={styles.actionText}>Accept</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
+                />
+
+                <RejectButton
                     onPress={() => handleRespond(request.id, false, currentUser.uid, request.from)}
-                    style={styles.reject}
-                >
-                    <Ionicons name="close" size={20} color="white" />
-                    <Text style={styles.actionText}>Reject</Text>
-                </TouchableOpacity>
+                />
                 </View>
             </View>
             ))
         )}
-        <GoBackButton onPress={() => navigation.navigate('Me')} />
+        <GoBackButton style={styles.button} onPress={() => navigation.navigate('Me')} />
         </View>
 
     );
@@ -134,5 +128,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 40,
   },
+  button: {
+        backgroundColor: '#007BFF',
+        padding: 10,
+        bottom: "5%",
+        borderRadius: 5,
+        marginTop: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        alignSelf: 'center',
+    },
 });
+
+const AcceptButton = ({ onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.accept}>
+      <Ionicons name="checkmark" size={20} color="white" />
+      <Text style={styles.actionText}>Accept</Text>
+    </TouchableOpacity>
+  );
+};
+
+const RejectButton = ({ onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.reject}>
+      <Ionicons name="close" size={20} color="white" />
+      <Text style={styles.actionText}>Reject</Text>
+    </TouchableOpacity>
+  );
+};
 

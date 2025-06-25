@@ -1,5 +1,7 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, Dimensions, ScrollView } from 'react-native';
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -14,10 +16,13 @@ const UserProfileView = ({
   onChangeBio,
   friendsCount,
   uploadCount,
+  onPress,
 }) => {
   const [editMode, setEditMode] = useState(false);
+  const navigation = useNavigation();
 
   return (
+    <View style={{ flex: 1, position:'relative' }}>
     <ScrollView contentContainerStyle={styles.container}>
       <View style={{ flexDirection: 'row', marginBottom: '3%' }}>
         <Image
@@ -31,37 +36,45 @@ const UserProfileView = ({
               <Text style={styles.varText}>{uploadCount}</Text>
               <Text style={styles.infoText}>practices</Text>
             </View>
-            <View>
+            <TouchableOpacity onPress={onPress}>
               <Text style={styles.varText}>{friendsCount}</Text>
               <Text style={styles.infoText}>friends</Text>
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
 
-      {editable && editMode ? (
-        <>
-          <SaveChangesButton onPress={() => { onSave(); setEditMode(false); }} />
-          <TextInput
-            value={bio}
-            onChangeText={onChangeBio}
-            placeholder="Set bio"
-          />
-        </>
-      ) : (
-        <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-          <Text style={[styles.bottomMargin, styles.bio, { marginHorizontal: '3%' }]}>
-            {bio || 'No bio yet.'}
-          </Text>
+      <View style={{ height: 100, marginHorizontal: '5%'}}>
+        <Text style={[styles.infoText, {fontSize:18}]}>Bio</Text>
+        {editable && editMode ? (
+          <>
+            <TextInput
+              value={bio}
+              onChangeText={onChangeBio}
+              placeholder="Set bio"
+              multiline
+              style={styles.bioInput}
+            />
+          </>
+        ) : (
+            <Text style={[styles.bio, {height: 'auto'}]}>
+              {bio || 'No bio yet.'}
+            </Text>
+        )}
+        </View>
+    </ScrollView>
 
           {editable && (
-            <View style={styles.buttonRow}>
-              <EditProfileButton onPress={() => setEditMode(true)} />
-            </View>
+              <View style={styles.bottomContainer}>
+              {editMode ? (
+                <SaveChangesButton onPress={() => { onSave(); setEditMode(false); }} />
+              ) : (
+                <EditProfileButton onPress={() => setEditMode(true)} />
           )}
+
+              </View>
+            )}
         </View>
-      )}
-    </ScrollView>
   );
 };
 
@@ -91,20 +104,21 @@ const styles = StyleSheet.create({
   },
   bio: {
     fontSize: 16,
-    textAlign: 'left',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    lineHeight: 22,
+    color: '#555',
+    marginHorizontal: '1.75%',
+    marginTop: '1.4%',
   },
   button: {
-    flex: 1,
+    flexDirection: 'row',
     backgroundColor: '#007BFF',
     paddingVertical: '3%',
     borderRadius: 6,
     marginHorizontal: '1%',
     paddingHorizontal: '3%',
+    width: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
@@ -113,10 +127,12 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
         position: 'absolute',
-        bottom: '8%', // distance from bottom
+        bottom: '4%', // distance from bottom
         left: 0,
         right: 0,
-        alignItems: 'center',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
   },
   bottomMargin: {
     marginBottom: '5%',
@@ -130,26 +146,40 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 16,
     color: '#333',
-    marginBottom: '3%',
+    marginHorizontal: '1.75%',
+    marginBottom: '1%',
     fontWeight: 'bold'
-  }
+  },
+  bioInput: {
+    width: '80%',
+    height: 'auto',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 10,
+    backgroundColor: '#fff',
+    marginBottom: '5%',
+    fontSize: 16,
+    textAlign: 'left',
+    color: '#888',
+  },
 });
 
 
 const EditProfileButton = ({ onPress }) => {
   return(
-  <TouchableOpacity style={styles.button} onPress={onPress}>
-      <Text style={styles.buttonText}>Edit Profile</Text>
-  </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={onPress}>
+        <Ionicons name="create-outline" size={28} color="#fff" style={{ marginRight: 8 }} />
+          <Text style={styles.buttonText}>Edit Profile</Text>
+      </TouchableOpacity>
   )
 }
 
 const SaveChangesButton = ({ onPress }) => {
   return(
-    <View style={styles.bottomContainer}>
     <TouchableOpacity style={styles.button} onPress={onPress}>
+      <Ionicons name="heart-outline" size={28} color="#fff" style={{ marginRight: 8 }} />
       <Text style={styles.buttonText}>Save Changes</Text>
     </TouchableOpacity>
-    </View>
   )
 }

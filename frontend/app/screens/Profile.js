@@ -5,6 +5,8 @@ import { FIREBASE_AUTH } from '../../firebase-config';
 import UserProfileView from './UserProfileView';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { LogoutButton } from './Home';
+
 
 
 
@@ -62,12 +64,16 @@ const Profile = () => {
       editable={true}
       onChangeBio={setBio}
       onSave={handleSave}
+      onPress={() => navigation.navigate('FriendsList')}
       friendsCount={friendsCount}
       uploadCount={uploadCount} 
       />
-     <NotifsButton 
-     onPress={() => navigation.navigate('Notifications')} 
-     count={friendRequestsCount} />
+
+      <LogoutButton onPress={() => FIREBASE_AUTH.signOut()} style={styles.topRight} />
+
+      <NotifsButton 
+      onPress={() => navigation.navigate('Notifications')} 
+      count={friendRequestsCount} />
     </View>
   );
 };
@@ -95,8 +101,13 @@ const styles = StyleSheet.create({
     },
     bottomRight: {
       position: 'absolute',
-      bottom: "3%",  // Distance from bottom edge
+      bottom: "15%",  // Distance from bottom edge
       right: "3%",   // Distance from right edge
+    },
+    topRight: {
+      position: 'absolute',
+      top: "2%",  // Distance from bottom edge
+      right: "30%",   // Distance from right edge
     },
     iconWrapper: {
       position: 'relative',

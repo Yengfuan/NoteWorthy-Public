@@ -1,135 +1,138 @@
 import {View, Image, Text, TextInput, Button, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
 import React, { use, useState, useRef, useEffect } from 'react';
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { searchUsersByUsername } from '../services/Users';
+import { getFriendsList, removeFriend } from '../services/Friends';
+import { GoBackButton } from './FriendProfile';
+
 import { useNavigation } from '@react-navigation/native';
 
+import { FIREBASE_AUTH } from '../../firebase-config';
 
-const FriendsList = () => {
-    
-    const navigation = useNavigation();
+
+export function FriendsList() {
+
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
+    const userID = FIREBASE_AUTH.currentUser?.uid;
+    const navigation = useNavigation();
 
-    const handleSearch = async(username) => {
+    const getFriends = async () => {
         try {
-            setLoading(true)
-            const users = await searchUsersByUsername(username);
-            setResults(users);
-        } catch (e) {
-            console.error(e);
+            setLoading(true);
+            const friends = await getFriendsList(userID);
+            console.log("Friends fetched:", friends);
+            setResults(friends);
+        } catch (error) {
+            console.error("Error fetching friends:", error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
 
-
-    return(
-        <View style={styles.container}>
-            <SearchBar onPress={handleSearch} />
-
-            <FlatList
-            data={results}
-            keyExtractor={(item) => item.uid}
-            renderItem={({ item }) => (
-        // Username match
-          <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('FriendProfile', {uid: item.uid})}>
-            <Text style={styles.username}>{item.username}</Text>
-          </TouchableOpacity>
-        )} 
-        // No username match
-        ListEmptyComponent={
-            !loading && (
-            <Text style={styles.emptyText}>No friends found</Text>
-          )
+    const handleRemoveFriend = async (friendID) => {
+        try {
+            await removeFriend(userID, friendID);
+            setResults((prevResults) => prevResults.filter((friend) => friend.uid !== friendID));
+        } catch (error) {
+            console.error("Error removing friend:", error);
         }
-        refreshing={loading}
-        onRefresh={() => handleSearch('')} //refresh list automatically
-        style={styles.list}
-        />
+    };
 
+    useEffect(() => {
+        getFriends();
+    }, []);
+
+    return (
+        <View style={styles.container}>
+            <FlatList
+                data={results}
+                keyExtractor={(item) => item.uid}
+                renderItem={({ item }) => (
+                    <View>
+                        <Text style={styles.title}>Your Friends</Text>
+                        <View style={styles.userItem}>
+                            
+                            <Text style={styles.username}>{item.username}</Text>
+                            <RemoveButton onPress={() => handleRemoveFriend(item.uid)} />
+                        </View>
+                    </View>
+                )}
+                ListEmptyComponent={
+                    <Text style={styles.title}>No friends yet!</Text>
+                }
+                refreshing={loading}
+                onRefresh={getFriends}
+                style={styles.list}
+            />
+            <GoBackButton style={styles.button} onPress={() => navigation.navigate("Me")} />
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1, 
-        alignItems: 'center', 
+        flex: 1,
+        paddingLeft: '5%',
         backgroundColor: '#ffffff',
         paddingTop: 30,
+        position: 'relative',
     },
-    input: {
-        marginVertical: 4,
-        paddingHorizontal: '2%',
-        height: 50,
-        borderWidth: 1,
-        borderRadius: 4,
-        padding: 5,
-        backgroundColor: '#fff',
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '90%'
-    },
-    textInput: {
-        flex: 1,
-        paddingVertical: 0
-    },
-    icon: {
-        marginRight: 4,
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginHorizontal: "2%",
+        marginBottom: "5%",
+        color: '#333',
     },
     list: {
-        width: '90%',
-        marginTop: 10,
+        width: '95%',
+        paddingHorizontal: 10,
     },
     userItem: {
         padding: 12,
+        flexDirection: 'row',
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
     },
     username: {
         fontSize: 16,
+        fontWeight: 'bold',
     },
-    emptyText: {
+    removeButton: {
+        borderRadius: 5,
+        backgroundColor: '#F44336', //red
+        alignItems: 'center',
+        padding: 10,
+        flexDirection: 'row',
+        alignSelf: 'flex-start'
+    },
+    actionText: {
+        color: 'white',
+        marginLeft: 6,
+        fontWeight: 'bold',
+    },
+    button: {
+        backgroundColor: '#007BFF',
+        padding: 10,
+        bottom: "5%",
+        borderRadius: 5,
         marginTop: 20,
-        textAlign: 'center',
-        color: '#999',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        alignSelf: 'center',
     },
 });
 
+const RemoveButton= ({ onPress }) => (
+    <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+        <TouchableOpacity onPress={onPress} style={styles.removeButton}>
+            <Text style={styles.actionText}>Remove Friend?</Text>
+            <Ionicons name="trash-outline" size={24} color="#ffffff" />
+        </TouchableOpacity>
+    </View>
+);
 
-export default FriendsList;
-
-const SearchBar = ({ onPress }) => {
-
-    const [username, setUsername] = useState('');
-    const timeout = useRef(null);
-
-    useEffect(() => {
-        if (timeout.current) {
-            clearTimeout(timeout.current)
-        }
-
-        timeout.current = setTimeout(() => {
-            onPress(username);
-        }, 500);
-
-        return () => clearTimeout(timeout.current);
-    }, [username])
-
-    return (
-        <View style={ styles.input } >
-            <TextInput
-            style= {styles.textInput}
-            value={username} 
-            placeholder='Search for friends!' 
-            autoCapitalize='none' 
-            onChangeText={setUsername} />
-            <TouchableOpacity 
-            style={styles.icon}
-            onPress={() => onPress(username)} >
-                <Ionicons name="search-outline" size={24} />
-            </TouchableOpacity>
-        </View>
-    )
-}

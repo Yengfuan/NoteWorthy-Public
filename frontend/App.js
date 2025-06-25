@@ -11,10 +11,11 @@
   import { SignUpScreen } from './app/screens/SignUpScreen';
   import  Profile  from './app/screens/Profile'
   import NotifsPage from './app/screens/NotifsPage';
-  import FriendsList from './app/screens/FriendsList';
+  import FriendSearch from './app/screens/FriendsSearch';
   import Login from './app/screens/Login';
   import Loading from './app/screens/Loading';
   import FriendProfile from './app/screens/FriendProfile';
+  import { FriendsList } from './app/screens/FriendsList';
   import { ScoreReader, PitchChecker, Home, JianpuPage } from './app/screens';
 
   /* Auth & Context */
@@ -45,6 +46,7 @@
     return (
       <ProfileStack.Navigator screenOptions={{headerShown: false}}>
         <ProfileStack.Screen name="Me" component={Profile} />
+        <ProfileStack.Screen name="FriendsList" component={FriendsList} />
         <ProfileStack.Screen name="Notifications" component={NotifsPage} />
       </ProfileStack.Navigator>
     );
@@ -53,7 +55,7 @@
   function SocialsStackScreen() {
     return(
       <SocialsStack.Navigator screenOptions={{headerShown: false}}>
-        <SocialsStack.Screen name="FriendsList" component={FriendsList} /> 
+        <SocialsStack.Screen name="FriendsList" component={FriendSearch} /> 
         <SocialsStack.Screen name="FriendProfile" component={FriendProfile} />
       </SocialsStack.Navigator>
     )
