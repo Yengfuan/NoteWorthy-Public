@@ -20,6 +20,8 @@
 
   /* Auth & Context */
   import { AuthContext, AuthProvider }from './app/screens/AuthContext';
+  import { FIREBASE_AUTH } from './firebase-config';
+import { LogoutButton } from './app/screens/Home';
 
 
   // import PitchDetector from "./modules/pitch-detector/src/PitchDetectorModule"
@@ -33,12 +35,15 @@
   function LogoTitle() {
     const navigation = useNavigation();
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-        <Image
-          source={require('./assets/Noteworthy-Icon.png')}
-          style={{resizeMode: 'contain', alignItems: 'center' , width: 150, height: 150}}
-        />
-      </TouchableOpacity>
+      <View style={{flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width:'100%', paddingHorizontal: '2%'}}>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <Image
+            source={require('./assets/Noteworthy-Icon.png')}
+            style={{resizeMode: 'contain', alignItems: 'center' , width: 150, height: 150}}
+          />
+        </TouchableOpacity>
+        <LogoutButton style={{marginTop: '3%'}} onPress={() => FIREBASE_AUTH.signOut()}/>
+      </View>
     );
   }
 
@@ -153,4 +158,11 @@
     );
   }
 
-
+// function SignOutButton({onPress}) {
+//   return(
+//     <TouchableOpacity style={st} onPress={onPress}>
+//       <Ionicons name='log-out-ouline' size={20} color="white" />
+//       <Text>Sign Out?</Text>
+//     </TouchableOpacity>
+//   )
+// }

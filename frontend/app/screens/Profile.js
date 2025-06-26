@@ -5,7 +5,6 @@ import { FIREBASE_AUTH } from '../../firebase-config';
 import UserProfileView from './UserProfileView';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { LogoutButton } from './Home';
 
 
 
@@ -69,8 +68,6 @@ const Profile = () => {
       uploadCount={uploadCount} 
       />
 
-      <LogoutButton onPress={() => FIREBASE_AUTH.signOut()} style={styles.topRight} />
-
       <NotifsButton 
       onPress={() => navigation.navigate('Notifications')} 
       count={friendRequestsCount} />
@@ -107,7 +104,7 @@ const styles = StyleSheet.create({
     topRight: {
       position: 'absolute',
       top: "2%",  // Distance from bottom edge
-      right: "30%",   // Distance from right edge
+      right: "3%",   // Distance from right edge
     },
     iconWrapper: {
       position: 'relative',
