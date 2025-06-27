@@ -2,11 +2,14 @@ import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image } fr
 import React from 'react';
 import Home from './Home';
 import Ionicons from "@expo/vector-icons/Ionicons";
+//import Pitchy from 'react-native-pitchy'
 
 // import PitchDetectorModule from '../../modules/pitch-detector/src/PitchDetectorModule';
 
 const PitchChecker = ({ navigation }) => {
     const [message, setMessage] = React.useState('');
+    const [toggled, setToggled] = React.useState(false);
+
     const handleClick = () => {
         // Here you would typically call the native module to start pitch detection
         // PitchDetectorModule.startPitchDetection((result) => {
@@ -14,11 +17,12 @@ const PitchChecker = ({ navigation }) => {
         // }, (error) => {
         //     setMessage(`Error: ${error}`);
         // });
-        setMessage('Detecting pitch...');
+        setToggled(bool => !bool)
+        toggled ? setMessage('') : setMessage('Detecting pitch...');
     }
     return (
         <View style={styles.container}>
-            <PitchCheckerButton onPress={handleClick}/>
+            <PitchCheckerButton onPress={handleClick} toggled = {toggled}/>
             {message !== '' && (
                 <Text style={{ marginTop: 20, fontSize: 16, color: '#333' }}>{message}</Text>
             )}
@@ -54,9 +58,15 @@ const styles = StyleSheet.create({
     },
 });
 
-const PitchCheckerButton = ({ onPress }) => {
+const PitchCheckerButton = ({ onPress, toggled }) => {
     return (
-        <TouchableOpacity style={styles.button} onPress={onPress}>
+        <TouchableOpacity
+            style={[
+                styles.button,
+                { backgroundColor: toggled ? '#FF4136' : '#007BFF' } 
+            ]}
+            onPress={onPress}
+        >
             <Ionicons name="mic" size={50} color="white" />
         </TouchableOpacity>
     );

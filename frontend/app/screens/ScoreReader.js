@@ -36,7 +36,7 @@ const ScoreReader = ({ navigation }) => {
         formData.append('key', key);
 
         try {
-            const response = await fetch('http://192.168.1.16:5001/upload', {
+            const response = await fetch('http://127.0.0.1:5001/upload', {
               method: 'POST',
               headers: {
                 'Content-Type': 'multipart/form-data',
