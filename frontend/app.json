@@ -9,13 +9,20 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins": [
+      "expo-audio"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.noteworthy"
+      "bundleIdentifier": "com.anonymous.noteworthy",
+      "NSMicrophoneUsageDescription": "This app needs access to the microphone to detect pitch."
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.noteworthy"
+      "package": "com.anonymous.noteworthy",
+      "permissions": [
+        "RECORD_AUDIO"
+      ]
     },
     "web": {}
   }

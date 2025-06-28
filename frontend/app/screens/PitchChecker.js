@@ -1,33 +1,83 @@
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Home from './Home';
 import Ionicons from "@expo/vector-icons/Ionicons";
-//import Pitchy from 'react-native-pitchy'
+import { Audio } from 'expo-av';
+import { detectPitch } from 'pitchy';
 
-// import PitchDetectorModule from '../../modules/pitch-detector/src/PitchDetectorModule';
 
 const PitchChecker = ({ navigation }) => {
-    const [message, setMessage] = React.useState('');
-    const [toggled, setToggled] = React.useState(false);
+    const recordingRef = useRef(null);
+    const [pitchInfo, setPitchInfo] = useState(null);
+    const [isRecording, setIsRecording] = useState(false);    
 
-    const handleClick = () => {
-        // Here you would typically call the native module to start pitch detection
-        // PitchDetectorModule.startPitchDetection((result) => {
-        //     setMessage(`Detected pitch: ${result}`);
-        // }, (error) => {
-        //     setMessage(`Error: ${error}`);
-        // });
-        setToggled(bool => !bool)
-        toggled ? setMessage('') : setMessage('Detecting pitch...');
-    }
-    return (
+    useEffect(() => {
+        return () => {
+          if (recordingRef.current?.interval) {
+            clearInterval(recordingRef.current.interval);
+          }
+        };
+      }, []);
+
+
+    
+    const startRecording = async () => {
+        try {
+          await Audio.requestPermissionsAsync();
+          await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+    
+          const recording = new Audio.Recording();
+          await recording.prepareToRecordAsync(
+            Audio.RecordingOptionsPresets.HighQuality
+          );
+          await recording.startAsync();
+          recordingRef.current = recording;
+          setIsRecording(true);
+    
+          const interval = setInterval(async () => {
+            const status = await recording.getStatusAsync();
+            if (status.isRecording) {
+              const { sound, uri } = await recording.createNewLoadedSoundAsync();
+              const buffer = await fetch(uri).then(res => res.arrayBuffer());
+              const audioBuffer = new Float32Array(buffer);
+    
+              const [pitch, clarity] = detectPitch(audioBuffer, 44100);
+    
+              if (clarity > 0.75 && pitch) {
+                setPitchInfo({ pitch: pitch.toFixed(2), clarity });
+              }
+    
+              await sound.unloadAsync(); // cleanup
+            }
+          }, 300);
+    
+          recordingRef.current.interval = interval;
+        } catch (err) {
+          console.error('Failed to start recording', err);
+        }
+      };
+
+    const stopRecording = async () => {
+        if (recordingRef.current) {
+          clearInterval(recordingRef.current.interval);
+          await recordingRef.current.stopAndUnloadAsync();
+          recordingRef.current = null;
+          setIsRecording(false);
+        }
+      };
+
+    
+      return (
         <View style={styles.container}>
-            <PitchCheckerButton onPress={handleClick} toggled = {toggled}/>
-            {message !== '' && (
-                <Text style={{ marginTop: 20, fontSize: 16, color: '#333' }}>{message}</Text>
-            )}
+          <PitchCheckerButton onPress = {isRecording ? stopRecording : startRecording} toggled={isRecording} /> 
+          {pitchInfo && (
+            <View style={{ marginTop: 20 }}>
+              <Text>Pitch: {pitchInfo.pitch} Hz</Text>
+              <Text>Clarity: {(pitchInfo.clarity * 100).toFixed(0)}%</Text>
+            </View>
+          )}
         </View>
-    );
+      );
 }
 
 const styles = StyleSheet.create({
