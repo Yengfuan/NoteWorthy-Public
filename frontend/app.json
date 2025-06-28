@@ -15,7 +15,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.noteworthy",
-      "NSMicrophoneUsageDescription": "This app needs access to the microphone to detect pitch."
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app requires microphone access for pitch detection."
+       }
     },
     "android": {
       "edgeToEdgeEnabled": true,
