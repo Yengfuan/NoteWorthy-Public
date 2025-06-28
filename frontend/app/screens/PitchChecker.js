@@ -13,14 +13,12 @@ const PitchChecker = () => {
   const [hasPermission, setHasPermission] = useState(false);
 
   useEffect(() => {
-    // In your useEffect or component:
     console.log("expo-device module:", Device);
     console.log("Device model:", Device.modelName);
     console.log("Device OS version:", Device.osVersion);
 
     const initPitchy = async () => {
       try {
-        // 1. Request microphone permissions
         const { granted } = await Audio.requestPermissionsAsync();
         console.log("Mic permission status:", granted);
         setHasPermission(granted);
@@ -35,7 +33,6 @@ const PitchChecker = () => {
             playsInSilentModeIOS: true,
           });
 
-        // 2. Check if microphone is available
         try {
         const recording = new Audio.Recording();
         await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
@@ -49,8 +46,6 @@ const PitchChecker = () => {
 
 
 
-
-        // 4. Initialize Pitchy
         const config = {
           algorithm: 'ACF2+',   
           bufferSize: 4096,
@@ -60,8 +55,7 @@ const PitchChecker = () => {
         };
 
         console.log("config:", JSON.stringify(config));
-        
-        // If Pitchy needs explicit initialization, uncomment this:
+
         await Pitchy.init();
         console.log("Pitchy initialized");
         setPitchyReady(true);
@@ -76,7 +70,7 @@ const PitchChecker = () => {
       if (subscription) {
         subscription.remove();
       }
-      // Clean up Pitchy if needed
+
       if (pitchyReady) {
         Pitchy.stop().catch(e => console.warn("Error stopping Pitchy on cleanup:", e));
       }
@@ -145,7 +139,7 @@ const PitchChecker = () => {
       </TouchableOpacity>
 
       {pitch ? (
-        <Text style={styles.pitchText}>Pitch: {pitch} Hz</Text>
+        <Text style={styles.pitchText}>Pitch: {pitch < 0 ? 0: pitch} Hz</Text>
       ) : (
         <Text style={styles.pitchText}>
           {pitchyReady ? "No pitch detected" : "Initializing..."}
@@ -166,7 +160,7 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 20, 
-    borderRadius: 50, 
+    borderRadius: 10, 
     marginTop: 20,
   },
   pitchText: {

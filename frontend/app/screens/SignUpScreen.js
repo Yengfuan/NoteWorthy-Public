@@ -1,5 +1,5 @@
 import {View, Text, TextInput, Image, StyleSheet, Button, ActivityIndicator, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from './AuthContext';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase-config'
@@ -18,33 +18,18 @@ export function SignUpScreen() {
     const [userErr, setUserError] = useState('');
     const [passErr, setPassError] = useState('');
 
-    const isUsernameTaken = async (username) => {
-        const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('username_lowercase', '==', username.toLowerCase()));
-        const snapshot = await getDocs(q);
-        return !snapshot.empty; 
-    }
+    // const isUsernameTaken = async (username) => {
+    //     const usersRef = collection(db, 'users');
+    //     const q = query(usersRef, where('username_lowercase', '==', username.toLowerCase()));
+    //     const snapshot = await getDocs(q);
+    //     return !snapshot.empty; 
+    // }
 
     const doPassWordsMatch = (password, confirmPass) => {
         return password == confirmPass;
     }
 
     const handleSignUp = async () => {
-        
-        if (!username.trim()) return setUserError("Please enter a username!");
-        if (!email.trim()) return setUserError("Please enter an email!");
-        if (!password.trim() || !confirmPass.trim()) return setPassError("Please enter a password!");
-        if (!doPassWordsMatch(password, confirmPass)) return setPassError("Passwords do not match!");
-
-
-        // const taken = await isUsernameTaken(username);
-
-        // if (taken) {
-        //     setUserError("Your username is already taken!")
-        //     return;
-        // }
-        setUserError('')
-        setPassError('')
         
         try {
             const userCredential = await signUp(email, password);
@@ -61,9 +46,30 @@ export function SignUpScreen() {
         }
     }
 
-    const isDisabled = userErr || passErr || password != confirmPass;
-    const ButtonComponent = isDisabled ? View : TouchableOpacity;
-    const buttonStyle = isDisabled ? styles.nonbutton : styles.button;
+    const isDisabled = 
+        (!username.trim() ||
+        !email.trim() ||
+        !password.trim() ||
+        !confirmPass.trim() ||
+        password !== confirmPass);
+
+    useEffect(() => {
+        setUserError('');
+        setPassError('');
+
+        if (!username.trim()) { 
+            setUserError("Please enter a username!")
+        }
+        if (!email.trim()) {
+            setUserError("Please enter an email!")
+        };
+        if (!password.trim() || !confirmPass.trim())  {
+            setPassError("Please enter a password!")
+        };
+        if (!doPassWordsMatch(password, confirmPass))  {
+            setPassError("Passwords do not match!")
+        };
+    })
 
     return (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
@@ -71,17 +77,15 @@ export function SignUpScreen() {
 
                 <Image source={require('../../assets/Noteworthy-Icon.png')} style={{ width: '100%', height: '10%', resizeMode: 'contain' }} />
 
-                <TextInput value={email} style={styles.input} placeholder="Email" autoCapitalize="none" onChangeText={(text) => setEmail(text)} />
-                <TextInput value={username} style={styles.input} placeholder='Username' autoCapitalize='none' onChangeText={(text) => setUsername(text)} />
+                <TextInput value={email} style={styles.input} placeholder="Email" placeholderTextColor="#999" autoCapitalize="none" onChangeText={(text) => setEmail(text)} />
+                <TextInput value={username} style={styles.input} placeholder='Username' placeholderTextColor="#999" autoCapitalize='none' onChangeText={(text) => setUsername(text)} />
                 {userErr ? <Text style={{ color: 'red' }}>{userErr}</Text> : null}
-
-                <TextInput value={password} style={styles.input} placeholder="Password" autoCapitalize='none' secureTextEntry={true} onChangeText={(text) => setPassword(text)} />
-                <TextInput value={confirmPass} style={styles.input} placeholder="Re-enter Password" autoCapitalize='none' secureTextEntry={true} onChangeText={(text) => setConfirmPass(text)}/>
+ 
+                <TextInput value={password} style={styles.input} placeholder="Password" placeholderTextColor="#999" autoCapitalize='none' secureTextEntry={true} onChangeText={(text) => setPassword(text)} />
+                <TextInput value={confirmPass} style={styles.input} placeholder="Re-enter Password" placeholderTextColor="#999" autoCapitalize='none' secureTextEntry={true} onChangeText={(text) => setConfirmPass(text)}/>
                 {passErr ? <Text style={{ color: 'red' }}>{passErr}</Text> : null}
 
-                <ButtonComponent style={buttonStyle} onPress={handleSignUp}>
-                    <Text style={styles.buttonText}>Create Account</Text>
-                </ButtonComponent>
+                <CreateAccButton style={isDisabled ? styles.nonbutton : styles.button} disabled={isDisabled} onPress={handleSignUp}/>
 
         </View>
         </KeyboardAvoidingView>
@@ -111,7 +115,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
     },
-        buttonText: {
+    buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
         textAlign: 'center',
@@ -125,3 +129,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     }
 });
+
+const CreateAccButton = ({onPress, style, isDisabled}) => {
+    return(
+        <TouchableOpacity
+        style={style}
+        disabled={isDisabled}
+        onPress={onPress}
+        >
+            <Text style={styles.buttonText}>Create Account</Text>
+        </TouchableOpacity>
+    );
+}
