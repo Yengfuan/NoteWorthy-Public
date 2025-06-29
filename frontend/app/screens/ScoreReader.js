@@ -1,7 +1,6 @@
 import {View, Text, TextInput, Button, StyleSheet, ScrollView, Alert, TouchableOpacity, Image} from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import React, { useState } from 'react';
-import Ionicons from "@expo/vector-icons/Ionicons";
 
 const ScoreReader = ({ navigation }) => {
     const [key, setKey] = useState('');
@@ -36,7 +35,7 @@ const ScoreReader = ({ navigation }) => {
         formData.append('key', key);
 
         try {
-            const response = await fetch('http:/10.139.138.92:5001/upload', {
+            const response = await fetch('https://noteworthy-backend-production.up.railway.app/upload', {
               method: 'POST',
               headers: {
                 'Content-Type': 'multipart/form-data',
