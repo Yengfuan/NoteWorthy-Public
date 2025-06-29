@@ -28,7 +28,7 @@ const JianpuPage = ({ route, navigation }) => {
                 </>
               ) : (
                 <>
-                  {<JianpuChord notes={chord.notes} underline={chord.underline} />}
+                  {<MemoizedJianpuChord notes={chord.notes} underline={chord.underline} />}
                 </>
               )}
             </React.Fragment>
@@ -42,6 +42,8 @@ const JianpuPage = ({ route, navigation }) => {
 };
 
 export default JianpuPage;
+
+const MemoizedJianpuChord = React.memo(JianpuChord);
 
 const styles = StyleSheet.create({
   scrollContainer: {

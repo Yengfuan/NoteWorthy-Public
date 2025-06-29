@@ -1,5 +1,6 @@
 from music21 import *
 from flask import Flask, request, jsonify
+import os
 
 app = Flask(__name__)
 
@@ -50,6 +51,12 @@ class JianpuChord: #Singular notes are also represented as chords with a single 
                 chord_note = JianpuChord([JianpuNote.giveDash()], 0)
             res.append(chord_note)
         return res
+    
+    @staticmethod
+    def giveMMR(bars):
+        notes = [JianpuNote( None, "MMR", False, False, 0, 0, 0)]
+        uL = bars
+        return JianpuChord(notes, uL)
 
 
         
@@ -173,14 +180,34 @@ def transposeToJianpu():
         melody = score.parts[0].getElementsByClass(stream.Measure)
         output = []
 
-                
-        
-        for measure in melody:
-            measure_output = []
-            for n in measure.getElementsByClass(['Note', 'Chord', 'Rest']):
-                measure_output.extend(convert(n, base_note))
-            output.append(measure_output)
+        measure_duration = 0
+        for n in melody[0]: 
+            measure_duration += n.quarterLength
 
+        bar_rest = []
+        for index, measure in enumerate(melody):
+            rest_duration = 0
+            for n in measure.getElementsByClass('Rest'):
+                rest_duration += n.quarterLength
+
+            if rest_duration == measure_duration:
+                bar_rest.append(index)
+            
+
+        count = 0
+        for index, measure in enumerate(melody):
+            measure_output = []
+            if index in bar_rest:
+                if (index + 1) in bar_rest:
+                    count += 1
+                else:
+                    measure_output.append(JianpuChord.giveMMR(count))
+                    count = 0
+                    output.append(measure_output)
+            else: 
+                for n in measure.getElementsByClass(['Note', 'Chord', 'Rest']):
+                    measure_output.extend(convert(n, base_note))
+                output.append(measure_output)
         
         result = list(map(mapMeasure, output))
 
@@ -193,7 +220,8 @@ def mapMeasure(measure):
     return list(map(lambda n: n.toDict(), measure))
     
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 
 
