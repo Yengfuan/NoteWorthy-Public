@@ -1,12 +1,14 @@
 import {View, Text, TextInput, Image, StyleSheet, Button, ActivityIndicator, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { AuthContext } from './AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 
 console.log("Login loading")
     
 const Login = () => {
-    const { signIn, signUp } = useContext(AuthContext);
+    const navigation = useNavigation();
+    const { signIn } = useContext(AuthContext);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -17,13 +19,13 @@ const Login = () => {
 
                 <Image source={require('../../assets/Noteworthy-Icon.png')} style={{ width: '100%', height: '10%', resizeMode: 'contain' }} />
                 <TextInput value={email} style={styles.input} placeholder="Email" autoCapitalize="none" onChangeText={(text) => setEmail(text)} />
-                <TextInput value={password} style={styles.input} placeholder="Password" secureTextEntry={true} onChangeText={(text) => setPassword(text)} />
+                <TextInput value={password} style={styles.input} placeholder="Password" autoCapitalize="none" secureTextEntry={true} onChangeText={(text) => setPassword(text)} />
 
                 <TouchableOpacity style={styles.button} onPress={() => signIn(email, password)}>
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={() => signUp(email, password)}>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SignUp')}>
                     <Text style={styles.buttonText}>Create Account</Text>
                 </TouchableOpacity>
         </View>

@@ -18,7 +18,6 @@ const ScoreReader = ({ navigation }) => {
         if (res.type !== 'cancel') {
           setFile(res);
         }
-
         
     };
 
@@ -37,7 +36,7 @@ const ScoreReader = ({ navigation }) => {
         formData.append('key', key);
 
         try {
-            const response = await fetch('http://172.31.6.76:5001/upload', {
+            const response = await fetch('http:/10.139.138.92:5001/upload', {
               method: 'POST',
               headers: {
                 'Content-Type': 'multipart/form-data',
@@ -67,7 +66,9 @@ const ScoreReader = ({ navigation }) => {
     return (
         <View style={styles.container} >
             <Text style={styles.title}>Score Reader</Text>
-            <Button title="Pick Music File" onPress={pickFile} />
+
+            <PickFileButton onPress={ pickFile }  />
+
             <Text style={styles.text}>Selected File: {file ? file.assets[0].name : 'None'}</Text>
     
             <TextInput
@@ -76,11 +77,8 @@ const ScoreReader = ({ navigation }) => {
             onChangeText={setKey}
             style={styles.input}
             />
-    
-            <Button title="Convert to Jianpu" onPress={uploadFile} />
-    
 
-            <HomeButton onPress={() => navigation.navigate('Home')} />
+            <JianpuButton onPress={ uploadFile } />
         </View>
           );
 
@@ -90,11 +88,20 @@ const ScoreReader = ({ navigation }) => {
 export default ScoreReader;
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 0,
+  },
+  
   container: {
-    padding: 20,
-    marginTop: 50,
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     flex: 1,
     backgroundColor: '#ffffff',
+    gap: 20,
   },
   text: {
     marginVertical: 10,
@@ -134,15 +141,18 @@ const styles = StyleSheet.create({
     },
 });
 
-const HomeButton = ({ onPress }) => {
-    return (
-        <View style={styles.bottomContainer}>
+const JianpuButton = ({onPress}) => {
+  return (
         <TouchableOpacity style={styles.button} onPress={onPress}>
-           <View style={{flexDirection: 'column', alignItems: 'center'}}>
-                <Ionicons name="home" size={24} color="white" />
-                <Text style={styles.buttonText}>Home</Text>
-            </View>
+          <Text style={styles.buttonText}>Convert to Jianpu</Text>
         </TouchableOpacity>
-        </View>
-    );
+  )
+}
+
+const PickFileButton = ({onPress}) => {
+  return (
+        <TouchableOpacity style={styles.button} onPress={onPress}>
+          <Text style={styles.buttonText}>Pick Music File</Text>
+        </TouchableOpacity>
+  )
 }

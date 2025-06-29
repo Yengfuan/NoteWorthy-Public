@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import Svg, {  Image as SvgImage, Circle, Line, G} from 'react-native-svg';
 
 
-const JianpuNoteSVG = ({ num = "1", isSharp = false , isFlat = false , octaveDotAbove = 0 , octaveDotsBelow = 0, dotted = 0, x = 0, y = 0}) => {
+const JianpuNoteSVG = React.memo(({ num = "1", isSharp = false , isFlat = false , octaveDotAbove = 0 , octaveDotsBelow = 0, dotted = 0, x = 0, y = 0}) => {
  const convertToImage = (int) => { 
           const imageMap = {
             "0" : require('../../assets/0.png'),
@@ -14,7 +14,7 @@ const JianpuNoteSVG = ({ num = "1", isSharp = false , isFlat = false , octaveDot
             "5" : require('../../assets/5.png'),
             "6" : require('../../assets/6.png'),
             "7" : require('../../assets/7.png'),
-            "dash" : require('../../assets/-.png'),
+            "dash" : require('../../assets/dash.png'),
           }
   
           if (imageMap[int]) {
@@ -30,7 +30,7 @@ const JianpuNoteSVG = ({ num = "1", isSharp = false , isFlat = false , octaveDot
     <G transform={`translate(${x}, ${y})`}>
       {isSharp && (
         <SvgImage 
-        href = {require('../../assets/#.png')}
+        href = {require('../../assets/sharp.png')}
         x="4"
         y="0"
         width="17"
@@ -78,17 +78,7 @@ const JianpuNoteSVG = ({ num = "1", isSharp = false , isFlat = false , octaveDot
         />
       ))}
 
-      {/* {Array.from({ length: underline }, (_, i) => (
-        <Line
-          key={`underline-${i}`}
-          x1={isFlat || isSharp ? "12" : "17"}
-          y1={55 + (i * 4)} // Adjust y position for each line
-          x2={isFlat || isSharp ? "38" : "32"}
-          y2={55 + (i * 4)} // Adjust y position for each line
-          stroke="black"
-          strokeWidth="1"
-        />
-      ))} */}
+ 
 
       {Array.from({ length: octaveDotsBelow }, (_, i) => (
         <Circle
@@ -106,4 +96,5 @@ const JianpuNoteSVG = ({ num = "1", isSharp = false , isFlat = false , octaveDot
   )
 
 }
+)
 export default JianpuNoteSVG;

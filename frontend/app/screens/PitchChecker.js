@@ -1,73 +1,176 @@
-import {View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import React from 'react';
-import Home from './Home';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { Audio } from 'expo-av';
+import Pitchy from 'react-native-pitchy';
+import * as Device from 'expo-device';
 
-// import PitchDetectorModule from '../../modules/pitch-detector/src/PitchDetectorModule';
+const PitchChecker = () => {
+  const [isListening, setIsListening] = useState(false);
+  const [pitch, setPitch] = useState(null);
+  const [subscription, setSubscription] = useState(null);
+  const [pitchyReady, setPitchyReady] = useState(false);
+  const [hasPermission, setHasPermission] = useState(false);
 
-const PitchChecker = ({ navigation }) => {
-    const [message, setMessage] = React.useState('');
-    const handleClick = () => {
-        // Here you would typically call the native module to start pitch detection
-        // PitchDetectorModule.startPitchDetection((result) => {
-        //     setMessage(`Detected pitch: ${result}`);
-        // }, (error) => {
-        //     setMessage(`Error: ${error}`);
-        // });
-        setMessage('Detecting pitch...');
+  useEffect(() => {
+    console.log("expo-device module:", Device);
+    console.log("Device model:", Device.modelName);
+    console.log("Device OS version:", Device.osVersion);
+
+    const initPitchy = async () => {
+      try {
+        const { granted } = await Audio.requestPermissionsAsync();
+        console.log("Mic permission status:", granted);
+        setHasPermission(granted);
+        
+        if (!granted) {
+          console.warn("Microphone permission not granted");
+          return;
+        }
+
+        await Audio.setAudioModeAsync({
+            allowsRecordingIOS: true,
+            playsInSilentModeIOS: true,
+          });
+
+        try {
+        const recording = new Audio.Recording();
+        await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+        await recording.stopAndUnloadAsync();
+        microphoneAvailable = true;
+        console.log("Microphone available (via recording test)");
+        } catch (e) {
+        console.warn("Microphone check via recording test failed:", e);
+        }
+
+
+
+
+        const config = {
+          algorithm: 'ACF2+',   
+          bufferSize: 4096,
+          minVolume: -60,
+          sampleRate: 44100,
+          channelCount: 1
+        };
+
+        console.log("config:", JSON.stringify(config));
+
+        await Pitchy.init();
+        console.log("Pitchy initialized");
+        setPitchyReady(true);
+      } catch (e) {
+        console.error("Initialization error:", e);
+      }
+    };
+
+    initPitchy();
+
+    return () => {
+      if (subscription) {
+        subscription.remove();
+      }
+
+      if (pitchyReady) {
+        Pitchy.stop().catch(e => console.warn("Error stopping Pitchy on cleanup:", e));
+      }
+    };
+  }, []);
+
+  const startDetection = async () => {
+    if (!pitchyReady) return;
+    
+    try {
+      const sub = Pitchy.addListener((data) => {
+        if (data?.pitch) {
+          setPitch(data.pitch.toFixed(2));
+        }
+      });
+      setSubscription(sub);
+
+      await Pitchy.start();
+      console.log('Pitch detection started!');
+      setIsListening(true);
+    } catch (err) {
+      console.error('Failed to start pitch detection:', err);
     }
-    return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff'}}>
-            <PitchCheckerButton onPress={handleClick}/>
-            {message !== '' && (
-                <Text style={{marginTop: 20, fontSize: 16, color: '#333'}}>{message}</Text>
-            )}
-            <HomeButton onPress={() => navigation.navigate('Home')} />
-        </View>
-    );
-}
+  };
 
-const styles = StyleSheet.create({
-    bottomContainer: {
-        position: 'absolute',
-        bottom: 30, // distance from bottom
-        left: 0,
-        right: 0,
-        alignItems: 'center',
-    },
-    button: {
-        backgroundColor: '#007BFF',
-        padding: 10,
-        borderRadius: 5,
-        marginTop: 20,
-    },
-    buttonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        textAlign: 'center',
-    },
-});
+  const stopDetection = async () => {
+    try {
+      await Pitchy.stop();
+      console.log('Pitch detection stopped!');
+      setIsListening(false);
+      setPitch(null);
+      if (subscription) {
+        subscription.remove();
+        setSubscription(null);
+      }
+    } catch (err) {
+      console.error('Failed to stop pitch detection:', err);
+    }
+  };
 
-const PitchCheckerButton = ({ onPress }) => {
-    return (
-        <TouchableOpacity style={styles.button} onPress={onPress}>
-            <Ionicons name="mic" size={50} color="white" />
-        </TouchableOpacity>
-    );
-}
+  const toggleListening = () => {
+    if (isListening) {
+      stopDetection();
+    } else {
+      startDetection();
+    }
+  };
 
-const HomeButton = ({ onPress }) => {
-    return (
-        <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.button} onPress={onPress}>
-           <View style={{flexDirection: 'column', alignItems: 'center'}}>
-                <Ionicons name="home" size={24} color="white" />
-                <Text style={styles.buttonText}>Home</Text>
-            </View>
-        </TouchableOpacity>
-        </View>
-    );
-}
+  return (
+    <View style={styles.container}>
+      {!hasPermission && (
+        <Text style={styles.warningText}>Microphone permission required</Text>
+      )}
+      
+      <TouchableOpacity
+        style={[
+          styles.button,
+          {
+            backgroundColor: !pitchyReady ? '#aaa' : isListening ? '#FF4136' : '#007BFF'
+          },
+        ]}
+        onPress={toggleListening}
+        disabled={!pitchyReady}
+      >
+        <Ionicons name="mic" size={50} color="white" />
+      </TouchableOpacity>
 
+      {pitch ? (
+        <Text style={styles.pitchText}>Pitch: {pitch < 0 ? 0: pitch} Hz</Text>
+      ) : (
+        <Text style={styles.pitchText}>
+          {pitchyReady ? "No pitch detected" : "Initializing..."}
+        </Text>
+      )}
+    </View>
+  );
+};
 
 export default PitchChecker;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: '#fff',
+  },
+  button: {
+    padding: 20, 
+    borderRadius: 10, 
+    marginTop: 20,
+  },
+  pitchText: {
+    fontSize: 24, 
+    marginTop: 30, 
+    fontWeight: 'bold',
+  },
+  warningText: {
+    color: 'red',
+    marginBottom: 20,
+    fontSize: 16,
+  },
+});

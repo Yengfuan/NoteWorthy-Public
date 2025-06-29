@@ -10,10 +10,10 @@ const Home = ( { navigation }) => {
     return (
         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
             <View>
+                {/* <ProfileButton /> */}
                 <ReadScoreButton onPress={() => navigation.navigate('Read Score')} />
                 <PitchCheckerButton onPress={() => navigation.navigate('Pitch')} />
             </View>
-            <LogoutButton onPress={() => FIREBASE_AUTH.signOut()} />
         </View>
     );
 }
@@ -21,33 +21,36 @@ const Home = ( { navigation }) => {
 const PitchCheckerButton = ({ onPress }) => {
     return (
         <TouchableOpacity style={styles.button} onPress={onPress}>
-            <View style={{flexDirection: 'column', alignItems: 'center'}}>
                 <Ionicons name="mic" size={24} color="white" />
                 <Text style={styles.buttonText}>Check Pitch</Text>
-            </View>
         </TouchableOpacity>
     );
+}
+
+const ProfileButton = ({ onPress }) => {
+    return (
+        <TouchableOpacity style={styles.button} onPress={onPress}>
+            <Ionicons name="person" size={20} color="white" />
+            <Text style={styles.buttonText}>Profile</Text>
+        </TouchableOpacity>
+    )
 }
 
 const ReadScoreButton = ({ onPress }) => {
     return (
         <TouchableOpacity style={styles.button} onPress={onPress}>
-            <View style={{flexDirection: 'column', alignItems: 'center'}}>
                 <Ionicons name="barcode-outline" size={24} color="white" />
                 <Text style={styles.buttonText}>Read Score</Text>
-            </View>
         </TouchableOpacity>
     );
 }
 
-const LogoutButton = ({ onPress }) => {
+export function LogoutButton({ onPress, style }) {
     return (
-        <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.button} onPress={onPress}>
-            <View style={{flexDirection: 'column', alignItems: 'center'}}>
-                <Ionicons name="log-out-outline" size={30} color="white" />
-                <Text style={styles.buttonText}>Log Out</Text>
-            </View>
+        <View style={style}>
+        <TouchableOpacity style={styles.logOut} onPress={onPress}>
+                <Ionicons name="log-out-outline" size={20} color="white" />
+                <Text style={[styles.buttonText, {fontSize: 12}]}>Sign Out?</Text>
         </TouchableOpacity>
         </View>
     );
@@ -68,11 +71,24 @@ const styles = StyleSheet.create({
         marginTop: 20,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'flex-start',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+    },
+    logOut: {
+        backgroundColor: '#007BFF',
+        borderRadius: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        paddingVertical: 8,
+        paddingHorizontal: 8,
     },
     buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
         textAlign: 'center',
+        marginLeft: 6,
     }, 
 });
 
